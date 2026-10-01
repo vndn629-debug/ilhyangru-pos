@@ -1,0 +1,1514 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#b3261e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>일향루 POS</title>
+<style>
+  :root {
+    --bg: #f4f1ec;
+    --surface: #ffffff;
+    --surface-2: #faf8f5;
+    --ink: #211d18;
+    --muted: #7a7166;
+    --line: #e6e0d7;
+    --primary: #b3261e;
+    --primary-soft: #fbeae8;
+    --pay: #1f6f43;
+    --pay-soft: #e7f3ec;
+    --warn: #b86e00;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(0,0,0,.06), 0 6px 16px rgba(0,0,0,.07);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    overscroll-behavior: none;
+  }
+  input, select { user-select: text; font: inherit; color: inherit; }
+  button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; padding: 0; }
+  button:disabled { opacity: .35; cursor: default; }
+
+  /* ---------- 상단바 ---------- */
+  .topbar {
+    flex-shrink: 0; z-index: 10;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    padding: 10px 16px; background: var(--primary); color: #fff;
+  }
+  .brand { font-weight: 800; font-size: 20px; letter-spacing: .02em; }
+  .tabs { display: flex; gap: 4px; background: rgba(0,0,0,.18); padding: 4px; border-radius: 12px; }
+  .tabs button { padding: 8px 18px; border-radius: 9px; font-weight: 700; color: rgba(255,255,255,.8); }
+  .tabs button.active { background: #fff; color: var(--primary); }
+  .top-right { margin-left: auto; display: flex; align-items: center; gap: 14px; font-variant-numeric: tabular-nums; }
+  .top-right b { font-weight: 800; }
+  #clock { font-weight: 800; font-size: 18px; }
+  .fs-btn { width: 36px; height: 36px; border-radius: 9px; background: rgba(0,0,0,.18); font-size: 16px; }
+
+  /* 화면 = 상단바 + 본문(본문만 스크롤). 테이블 화면은 본문을 꽉 채워서 스크롤 없음 */
+  main { flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; }
+  .view { display: none; width: 100%; max-width: 1400px; margin: 0 auto; }
+  .view.active { display: block; }
+
+  /* ---------- 테이블 화면: 배치도가 본문 전체를 차지 ---------- */
+  main:has(#view-tables.active) { padding: 8px; }
+  #view-tables.active { flex: 1; min-height: 0; max-width: none; display: flex; flex-direction: column; }
+  #tableArea { flex: 1; min-height: 0; overflow-y: auto; }
+  #tableArea.floor-area { container-type: size; overflow: hidden; display: grid; place-items: center; }
+  /* 상단바 안의 테이블 도구 (사용중·미정산, 배치도/목록, 배치 편집) */
+  .table-toolbar { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+  .table-toolbar[hidden] { display: none; }
+  .table-summary { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tb-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .topbar .tb-hint { color: rgba(255,255,255,.85); }
+  .topbar .btn.small { min-height: 38px; padding: 6px 14px; }
+  .topbar .btn.primary { background: #fff; color: var(--primary); }
+  .topbar .btn.ghost { background: rgba(255,255,255,.95); border-color: transparent; color: var(--ink); }
+  .tb-hint { font-size: 13px; color: var(--muted); }
+  .seg-mini { display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 3px; }
+  .seg-mini button { padding: 7px 14px; border-radius: 8px; font-weight: 700; font-size: 14px; color: var(--muted); }
+  .seg-mini button.on { background: var(--ink); color: #fff; }
+
+  .pill { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; font-size: 14px; color: var(--muted); }
+  .pill b { color: var(--ink); margin-left: 4px; }
+  .table-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .table-card {
+    min-height: 156px; border-radius: var(--radius); padding: 14px;
+    text-align: left; display: flex; flex-direction: column; gap: 8px;
+    background: var(--surface); border: 2px dashed var(--ink);
+    transition: transform .08s ease;
+  }
+  .table-card:active { transform: scale(.97); }
+  .table-card .t-name { font-size: 30px; font-weight: 800; }
+  .table-card.empty .t-name { color: var(--ink); }
+  .table-card.empty .t-empty { margin-top: auto; color: var(--muted); font-size: 17px; }
+  .table-card.busy { background: var(--primary); border: 2px solid var(--primary); color: #fff; box-shadow: var(--shadow); }
+  .t-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+  .t-time { font-size: 16px; opacity: .85; white-space: nowrap; }
+  .t-items { list-style: none; margin: 0; padding: 0; font-size: 19px; font-weight: 600; display: grid; gap: 2px; }
+  .t-items li { display: flex; justify-content: space-between; gap: 8px; }
+  .t-items li span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .t-items li:nth-child(n+5) { display: none; }
+  .t-total { margin-top: auto; display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .t-cnt { font-size: 15px; font-weight: 600; opacity: .8; }
+  .empty-note { color: var(--muted); padding: 30px 10px; text-align: center; }
+
+  /* ---------- 배치도 ---------- */
+  /* 64:36 비율로 남은 공간을 최대한 채움 (가로로는 최대 15%까지만 늘어나서 테이블이 찌그러지지 않음) */
+  .floor {
+    position: relative;
+    height: min(100cqh, calc(100cqw * 36 / 64));
+    width: min(100cqw, calc(100cqh * 64 / 36 * 1.15));
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+  }
+  .floor.editing {
+    border-color: var(--primary);
+    background-image:
+      linear-gradient(to right, #ece7df 1px, transparent 1px),
+      linear-gradient(to bottom, #ece7df 1px, transparent 1px);
+    background-size: calc(100% / 32) calc(100% / 18);
+  }
+  .fitem { position: absolute; padding: 4px; }
+  .fbox { position: relative; width: 100%; height: 100%; container-type: size; overflow: hidden; }
+  .fbox.table-card { min-height: 0; padding: 10px 12px; gap: 4px; }
+  .fbox .t-name { font-size: clamp(16px, 17cqi, 36px); line-height: 1.15; }
+  .fbox .t-time { font-size: clamp(11px, 8cqi, 17px); }
+  .fbox .t-items { font-size: clamp(13px, 10cqi, 21px); font-weight: 600; }
+  .fbox .t-cnt { font-size: clamp(11px, 7.5cqi, 16px); }
+  .fbox .t-total { font-size: clamp(15px, 13cqi, 28px); }
+  .fbox .t-empty { font-size: clamp(13px, 9cqi, 18px); white-space: nowrap; }
+  /* 테이블 칸 높이에 맞춰 보여줄 메뉴 줄 수 자동 조절 (나머지는 '총 n개'로) */
+  /* 번호·금액 줄은 항상 보이고, 메뉴는 남는 공간에 다 들어가는 줄까지만 (fitTableLines) */
+  .fbox .t-head, .fbox .t-total { flex-shrink: 0; }
+  .fbox .t-items { min-height: 0; overflow: hidden; }
+  .fbox .t-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fbox.round { border-radius: 50%; align-items: center; justify-content: center; text-align: center; }
+  .fbox.round .t-head { flex-direction: column; align-items: center; gap: 0; }
+  .fbox.round .t-items { display: none; }
+  .fbox.round .t-total, .fbox.round .t-empty { margin-top: 0; }
+  .fbox.round .t-cnt { display: none; }
+  .fbox.fixture { display: grid; place-items: center; background: #ebe6de; border-radius: 12px; color: var(--muted); font-weight: 800; }
+  .fbox.fixture span { font-size: clamp(12px, 30cqh, 18px); text-align: center; padding: 0 4px; }
+  /* 마우스 쓰는 화면에서만: 잘 보이는 큰 커서 + 올리면 살짝 커짐 */
+  :root {
+    --cur-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 32 32'%3E%3Cpath d='M3 2v24l6.5-6 4.5 10 4.5-2-4.5-9.5H23z' fill='%23111' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto;
+    --cur-hand: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 32 32'%3E%3Cpath d='M11 4.5a2.5 2.5 0 0 1 5 0V14a2.3 2.3 0 0 1 4.5.4 2.3 2.3 0 0 1 4.5.8 2.3 2.3 0 0 1 4 1.3V23c0 4-3 7.5-7 7.5h-4.5c-3 0-5-1.5-6.5-4L4.6 20a2.4 2.4 0 0 1 3.6-3.1L11 19.5z' fill='white' stroke='%23111' stroke-width='1.8' stroke-linejoin='round'/%3E%3C/svg%3E") 15 2, pointer;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    body { cursor: var(--cur-arrow); }
+    button, select, label, .table-card, .menu-btn, .move-btn, [data-table] { cursor: var(--cur-hand); }
+    button:disabled { cursor: var(--cur-arrow); }
+  }
+  .table-card, .menu-btn, .move-btn { transition: transform .12s ease, box-shadow .12s ease; }
+  @media (hover: hover) and (pointer: fine) {
+    .table-card:hover, .move-btn:hover { transform: scale(1.04); box-shadow: 0 8px 22px rgba(0,0,0,.16); }
+    .menu-btn:hover { transform: scale(1.03); box-shadow: 0 6px 16px rgba(0,0,0,.12); border-color: #d9d2c7; }
+    .fitem:hover { z-index: 3; }
+    .floor.editing .table-card:hover { transform: none; }
+  }
+  .floor.editing .fitem, .floor.editing .table-card { touch-action: none; cursor: grab; }
+  .floor.editing .table-card:active { transform: none; }
+  .floor.editing .fbox { outline: 2px dashed rgba(0,0,0,.2); outline-offset: -2px; }
+  .fitem.dragging { z-index: 5; cursor: grabbing; }
+  .fitem.dragging .fbox { box-shadow: 0 10px 30px rgba(0,0,0,.25); opacity: .9; }
+  .rz {
+    position: absolute; right: 0; bottom: 0; width: 24px; height: 24px; border-radius: 7px;
+    background: var(--ink); color: #fff; font-size: 13px; display: grid; place-items: center; cursor: nwse-resize;
+  }
+  .fld { display: grid; gap: 6px; font-size: 14px; color: var(--muted); margin-bottom: 14px; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .seg button { padding: 12px; border-radius: 12px; border: 2px solid var(--line); font-weight: 700; color: var(--ink); }
+  .seg button.on { border-color: var(--ink); background: var(--ink); color: #fff; }
+
+  /* ---------- 모달 공통 ---------- */
+  .backdrop {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(20,15,10,.45);
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+    opacity: 0; transition: opacity .15s;
+  }
+  .backdrop.show { opacity: 1; }
+  .modal {
+    width: 100%; max-height: 100%;
+    background: var(--surface); border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .modal.dialog { max-width: 460px; padding: 22px; }
+  .modal.dialog.wide { max-width: 760px; }
+  .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .dialog .modal-head { padding: 0 0 14px; margin-bottom: 14px; }
+  .modal-head h2 { margin: 0; font-size: 22px; }
+  .sub { color: var(--muted); font-size: 14px; margin-top: 3px; }
+  .sub em { color: var(--warn); font-style: normal; font-weight: 700; }
+  .icon-btn {
+    width: 42px; height: 42px; flex-shrink: 0; border-radius: 10px;
+    display: inline-grid; place-items: center; font-size: 18px;
+    color: var(--muted); background: var(--surface-2); border: 1px solid var(--line);
+  }
+  .icon-btn.del { color: var(--primary); }
+  .dlg-title { margin: 0 0 8px; font-size: 20px; }
+  .dlg-msg { margin: 0 0 18px; color: var(--muted); line-height: 1.55; white-space: pre-line; }
+  .dlg-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .dlg-actions .btn { flex: 1; }
+
+  .btn { min-height: 50px; padding: 12px 16px; border-radius: 12px; font-weight: 700; font-size: 16px; border: 1px solid transparent; }
+  .btn.small { min-height: 42px; padding: 8px 14px; font-size: 15px; }
+  .btn.ghost { background: var(--surface-2); border-color: var(--line); }
+  .btn.primary { background: var(--primary); color: #fff; }
+  .btn.pay { background: var(--pay); color: #fff; }
+  .btn.danger { background: #fff; border-color: #e3b4b0; color: var(--primary); }
+  .btn.attn { animation: pulse 1.4s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(179,38,30,.45); } 100% { box-shadow: 0 0 0 10px rgba(179,38,30,0); } }
+
+  /* ---------- 주문 모달 ---------- */
+  .order-modal { max-width: 1280px; height: 100%; }
+  .order-body { flex: 1; display: grid; grid-template-columns: 1.5fr 1fr; min-height: 0; }
+  .menu-pane { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); background: var(--surface-2); }
+  .cat-tabs { display: flex; gap: 6px; padding: 12px; overflow-x: auto; flex-shrink: 0; }
+  .cat-tabs button { padding: 12px 26px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-weight: 800; font-size: 18px; white-space: nowrap; }
+  .cat-tabs button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .menu-grid {
+    flex: 1; overflow-y: auto; padding: 8px 14px 14px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); grid-auto-rows: max-content;
+    gap: 12px; align-content: start;
+  }
+  .menu-btn {
+    position: relative; min-height: 120px; padding: 16px; border-radius: 14px;
+    background: var(--surface); border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    text-align: left; display: flex; flex-direction: column; justify-content: space-between; gap: 6px;
+  }
+  .menu-btn .mtxt { display: flex; flex-direction: column; gap: 8px; }
+  .menu-btn.has-img { padding: 0; overflow: visible; justify-content: flex-start; }
+  .menu-btn .mimg { width: 100%; height: 150px; flex-shrink: 0; object-fit: cover; display: block; border-radius: 13px 13px 0 0; background: var(--line); }
+  .menu-btn .noimg { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: #efeae2; color: #b3aa9e; font-size: 14px; font-weight: 700; }
+  .menu-btn.has-img .mtxt { padding: 10px 14px 14px; display: flex; flex-direction: column; gap: 4px; }
+  .menu-btn .mn { font-weight: 800; font-size: 24px; line-height: 1.25; }
+  .menu-btn .mp { color: var(--muted); font-size: 19px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .menu-btn .mq {
+    position: absolute; top: -8px; right: -8px; min-width: 34px; height: 34px; padding: 0 9px;
+    border-radius: 17px; background: var(--primary); color: #fff; font-weight: 800; font-size: 18px;
+    display: grid; place-items: center;
+  }
+  .menu-btn.pop { animation: pop .22s ease; }
+  @keyframes pop { 40% { transform: scale(.94); background: var(--primary-soft); } }
+
+  .cart-pane { display: flex; flex-direction: column; min-height: 0; }
+  .cart-list { flex: 1; overflow-y: auto; padding: 4px 16px; }
+  .cart-empty { height: 100%; min-height: 120px; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 20px; line-height: 1.6; }
+  .cart-line { display: grid; grid-template-columns: 1fr auto 110px; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .cart-line.flash { animation: flash .5s ease; }
+  @keyframes flash { 0% { background: #fff1d6; } 100% { background: transparent; } }
+  .cl-name { font-weight: 800; font-size: 20px; }
+  .cl-price { font-size: 15px; color: var(--muted); }
+  .cl-sum { text-align: right; font-weight: 800; font-size: 19px; font-variant-numeric: tabular-nums; }
+  .qty { display: flex; align-items: center; gap: 6px; }
+  .qty button { width: 48px; height: 48px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); font-size: 22px; font-weight: 700; line-height: 1; }
+  .qty span { min-width: 32px; text-align: center; font-weight: 800; font-size: 22px; }
+  .badge { display: inline-block; font-size: 14px; padding: 1px 7px; border-radius: 999px; margin-left: 4px; vertical-align: 1px; font-weight: 700; }
+  .badge.add { background: #fff1d6; color: #8a5200; }
+  .badge.sub { background: #eceae6; color: var(--muted); }
+  .cart-foot { border-top: 1px solid var(--line); padding: 14px 16px; flex-shrink: 0; }
+  .cart-total { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .cart-total strong { font-size: 28px; font-variant-numeric: tabular-nums; }
+  .cart-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  /* ---------- 정산 / 이동 ---------- */
+  .checkout-modal { max-width: 520px; }
+  .receipt { padding: 8px 20px; overflow-y: auto; }
+  .r-line { display: grid; grid-template-columns: 1fr auto 100px; gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--line); font-variant-numeric: tabular-nums; }
+  .r-line span:nth-child(2) { color: var(--muted); }
+  .r-line strong { text-align: right; }
+  .r-total { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 20px; background: var(--surface-2); border-block: 1px solid var(--line); flex-shrink: 0; }
+  .r-total strong { font-size: 30px; color: var(--pay); font-variant-numeric: tabular-nums; }
+  .methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 16px 20px 0; flex-shrink: 0; }
+  .method { padding: 14px 6px; border-radius: 12px; border: 2px solid var(--line); font-weight: 700; background: var(--surface); }
+  .method.on { border-color: var(--pay); background: var(--pay-soft); color: var(--pay); }
+  .checkout-modal .dlg-actions { padding: 16px 20px 20px; flex-shrink: 0; }
+
+  .move-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; overflow-y: auto; min-height: 0; }
+  .move-btn { padding: 16px 12px; border-radius: 12px; border: 2px dashed var(--ink); font-weight: 800; font-size: 18px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; background: var(--surface); text-align: left; }
+  .move-btn small { font-weight: 500; font-size: 13px; color: var(--muted); }
+  .move-btn.busy { background: var(--primary); color: #fff; border: 2px solid var(--primary); }
+  .move-btn.busy small { color: rgba(255,255,255,.85); }
+
+  /* ---------- 매출 화면 ---------- */
+  .sales-head { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .sales-head .date-inp { width: auto; flex: 0 1 200px; min-width: 0; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+  .stat .k { font-size: 13px; color: var(--muted); }
+  .stat .v { font-size: 22px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .stat.main { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .stat.main .k { color: rgba(255,255,255,.7); }
+  .stat.warn .v { color: var(--warn); }
+  .sales-cols { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; align-items: start; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .panel h3 { margin: 0 0 8px; font-size: 16px; }
+  .sale-row { padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .sale-row:last-child { border-bottom: 0; }
+  .s-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .s-time { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tag { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--pay-soft); color: var(--pay); }
+  .s-total { margin-left: auto; font-variant-numeric: tabular-nums; }
+  .s-items { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .link-btn { font-size: 13px; color: var(--primary); padding: 6px 8px; border-radius: 8px; border: 1px solid #efd0cd; }
+  .rank { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+  .rank th { text-align: left; font-size: 13px; color: var(--muted); font-weight: 600; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .rank td { padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .rank th:not(:first-child), .rank td:not(:first-child) { text-align: right; }
+
+  /* ---------- 설정 화면 ---------- */
+  .set-wrap { display: grid; gap: 16px; max-width: 920px; }
+  .set-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+  .set-card h3 { margin: 0 0 12px; font-size: 17px; }
+  .set-card h3 small { color: var(--muted); font-weight: 500; font-size: 13px; margin-left: 6px; }
+  .inp { width: 100%; min-height: 44px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); font-size: 16px; }
+  .inp:focus { outline: 2px solid var(--primary); outline-offset: -1px; background: #fff; }
+  .set-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+  .table-set { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 0 12px; margin-bottom: 8px; }
+  .set-cat { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 12px; background: var(--surface-2); }
+  .set-cat-head { display: flex; gap: 6px; margin-bottom: 10px; }
+  .set-cat-head .inp { font-weight: 800; background: #fff; }
+  .menu-row .name { flex: 2; background: #fff; }
+  .menu-row .price { flex: 1; max-width: 130px; text-align: right; background: #fff; }
+  .menu-row .sel { flex: 1; max-width: 120px; background: #fff; }
+  .thumb {
+    width: 52px; height: 52px; flex-shrink: 0; border-radius: 10px; overflow: hidden;
+    border: 1px dashed #cfc6b9; background: #fff; display: grid; place-items: center;
+    font-size: 11px; color: var(--muted); line-height: 1.2; text-align: center;
+  }
+  .thumb.on { border: 1px solid var(--line); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .data-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hint { color: var(--muted); font-size: 13px; margin: 10px 0 0; line-height: 1.55; }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 24px; z-index: 200;
+    transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
+    background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 12px; font-weight: 600;
+    max-width: calc(100% - 32px); transition: .2s;
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* ---------- 좁은 화면 (휴대폰) ---------- */
+  @media (max-width: 900px) {
+    .sales-cols { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    .topbar { gap: 10px; }
+    .top-right { order: 2; }
+    .tabs { order: 3; width: 100%; }
+    .tabs button { flex: 1; }
+    .table-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    /* 휴대폰: 배치도는 원래 크기로 두고 손가락으로 밀어서 보기 */
+    #tableArea.floor-area { container-type: normal; overflow: auto; display: block; }
+    .floor { width: 760px; height: 428px; }
+    .table-toolbar { order: 4; width: 100%; flex: none; justify-content: flex-start; }
+    .backdrop { padding: 0; }
+    .modal.order-modal { border-radius: 0; }
+    .order-body { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+    .menu-pane { border-right: 0; border-bottom: 1px solid var(--line); }
+    .menu-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .menu-btn .mn { font-size: 20px; }
+    .menu-btn .mp { font-size: 16px; }
+    .menu-btn .mimg { height: 110px; }
+    .cart-list { max-height: 26vh; }
+    .cart-total strong { font-size: 24px; }
+    .modal.dialog { margin: 16px; }
+    .menu-row {
+      display: grid; gap: 6px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--line);
+      grid-template-columns: 64px 1fr 1fr 42px 42px;
+      grid-template-areas: "t n n n n" "t p c u d";
+    }
+    .menu-row .thumb { grid-area: t; width: 64px; height: 100%; }
+    .menu-row .name { grid-area: n; }
+    .menu-row .price { grid-area: p; max-width: none; min-width: 0; }
+    .menu-row .sel { grid-area: c; max-width: none; min-width: 0; }
+    .menu-row [data-mup] { grid-area: u; }
+    .menu-row [data-mdel] { grid-area: d; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand" id="brandName">일향루</div>
+  <nav class="tabs">
+    <button data-view="tables" class="active">테이블</button>
+    <button data-view="sales">매출</button>
+    <button data-view="settings">설정</button>
+  </nav>
+  <div class="table-toolbar" id="tableToolbar">
+    <div class="table-summary" id="tableSummary"></div>
+    <div class="tb-tools" id="tableTools"></div>
+  </div>
+  <div class="top-right">
+    <span id="todayTotal"></span>
+    <span id="clock"></span>
+    <button class="fs-btn" id="fsBtn" title="전체화면">⛶</button>
+  </div>
+</header>
+
+<main>
+  <section id="view-tables" class="view active">
+    <div id="tableArea"></div>
+  </section>
+  <section id="view-sales" class="view"></section>
+  <section id="view-settings" class="view"></section>
+</main>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+/* =========================================================
+ *  기본 유틸
+ * ========================================================= */
+const KEY = 'ilhyangru-pos-v1';
+const METHODS = ['카드', '현금', '계좌이체'];
+
+let seq = 0;
+const uid = () => Date.now().toString(36) + (seq++).toString(36) + Math.random().toString(36).slice(2, 6);
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const won = n => (Number(n) || 0).toLocaleString('ko-KR') + '원';
+const clone = o => JSON.parse(JSON.stringify(o));
+const pad = n => String(n).padStart(2, '0');
+const dateKey = ts => { const d = new Date(ts); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+const todayKey = () => dateKey(Date.now());
+const fmtTime = ts => { const d = new Date(ts); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const elapsed = ts => {
+  const m = Math.max(0, Math.floor((Date.now() - ts) / 60000));
+  return m < 60 ? `${m}분` : `${Math.floor(m / 60)}시간 ${m % 60}분`;
+};
+const sumItems = items => items.reduce((s, i) => s + i.price * i.qty, 0);
+const lineKey = i => `${i.menuId}|${i.price}`;
+const qtyMap = items => {
+  const m = {};
+  items.forEach(i => { m[lineKey(i)] = (m[lineKey(i)] || 0) + i.qty; });
+  return m;
+};
+function sameItems(a, b) {
+  const x = qtyMap(a), y = qtyMap(b);
+  for (const k of new Set([...Object.keys(x), ...Object.keys(y)])) if (x[k] !== y[k]) return false;
+  return true;
+}
+function mergeItems(a, b) {
+  const out = clone(a);
+  b.forEach(it => {
+    const f = out.find(x => lineKey(x) === lineKey(it));
+    if (f) f.qty += it.qty; else out.push({ ...it });
+  });
+  return out;
+}
+
+/* =========================================================
+ *  상태 (브라우저 localStorage에 저장)
+ * ========================================================= */
+const MENU_VER = 1;   // 기본 메뉴를 새로 바꾸면 올림 → 불러올 때 한 번 새 메뉴로 교체 (사진은 같은 이름끼리 유지)
+function defaultMenu() {
+  const m = (cat, name, price) => ({ id: uid(), cat, name, price });
+  return {
+    categories: ['식사', '밥류', '안주', '주류', '음료', '여름별미'],
+    menu: [
+      m('식사', '짜장면', 7000), m('식사', '짬뽕', 9000), m('식사', '우동', 9000), m('식사', '간짜장', 9000),
+      m('식사', '짬짜면', 10000), m('식사', '볶짜면', 11000), m('식사', '해물울면', 9000),
+      m('식사', '해물쟁반짜장(1인)', 11000), m('식사', '해물쟁반짜장(2인)', 20000),
+      m('식사', '군만두', 6000), m('식사', '물만두', 6000),
+      m('밥류', '볶음밥', 10000), m('밥류', '짜장밥', 9000), m('밥류', '짬뽕밥', 10000), m('밥류', '우동밥', 10000),
+      m('밥류', '잡채밥', 11000), m('밥류', '송이덮밥', 11000), m('밥류', '육개장', 10000), m('밥류', '내장탕', 10000),
+      m('안주', '사과탕수육(소)', 20000), m('안주', '사과탕수육(중)', 27000), m('안주', '사과탕수육(대)', 35000),
+      m('안주', '양장피(소)', 30000), m('안주', '양장피(대)', 40000), m('안주', '잡채', 30000),
+      m('주류', '소주', 5000), m('주류', '맥주', 5000), m('주류', '고량주(소)', 6000), m('주류', '고량주(대)', 9000),
+      m('주류', '연태고량주', 20000),
+      m('음료', '음료수', 2000),
+      m('여름별미', '냉콩국수', 11000), m('여름별미', '비빔냉면', 10000), m('여름별미', '물냉면', 10000),
+    ],
+  };
+}
+function defaultState() {
+  const { categories, menu } = defaultMenu();
+  return {
+    storeName: '일향루',
+    categories,
+    menu,
+    menuVer: MENU_VER,
+    tables: Array.from({ length: 12 }, (_, i) => ({ id: uid(), name: `${i + 1}번`, shape: 'rect', ...defaultSlot(i) })),
+    fixtures: defaultFixtures(),   // 배치도에 표시만 하는 구역 (주방, 카운터 등)
+    layoutVer: LAYOUT_VER,
+    tableView: 'floor',   // 'floor' 배치도 | 'grid' 목록
+    orders: {},   // { [tableId]: { items:[{menuId,name,price,qty}], openedAt, updatedAt } }
+    sales: [],    // [{ id, tableId, tableName, items, total, method, openedAt, closedAt }]
+  };
+}
+// 예전 기본 메뉴(임시 가격)를 실제 메뉴판으로 한 번 교체. 주문·매출 기록은 그대로, 사진은 같은 이름 메뉴에 유지
+function applyMenuVer(st, ver) {
+  if (ver === MENU_VER) return st;
+  const fresh = defaultMenu();
+  const imgs = Object.fromEntries(st.menu.filter(x => x.img).map(x => [x.name, x.img]));
+  fresh.menu.forEach(x => { if (imgs[x.name]) x.img = imgs[x.name]; });
+  st.categories = fresh.categories;
+  st.menu = fresh.menu;
+  st.menuVer = MENU_VER;
+  try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { /* 저장은 다음 변경 때 */ }
+  return st;
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s && Array.isArray(s.tables) && Array.isArray(s.menu)) return applyMenuVer(fromSaved(s), s.menuVer);
+    }
+  } catch (e) { console.error(e); }
+  return defaultState();
+}
+
+/* 배치도: 가로 64칸 × 세로 36칸 격자 위에 테이블/구역을 놓음 */
+const FW = 64, FH = 36;
+const LAYOUT_VER = 2;   // 격자 크기를 바꾸면 올림 → 예전 배치는 기본 배치로 다시 깔림
+// 실제 가게 배치 (1번 ~ 12번)
+const STORE_LAYOUT = [
+  { x: 13, y: 25, w: 9, h: 8 },   // 1
+  { x: 22, y: 25, w: 10, h: 8 },  // 2
+  { x: 13, y: 14, w: 8, h: 8 },   // 3
+  { x: 21, y: 14, w: 8, h: 8 },   // 4
+  { x: 32, y: 14, w: 8, h: 8 },   // 5
+  { x: 40, y: 14, w: 8, h: 8 },   // 6
+  { x: 13, y: 3, w: 8, h: 8 },    // 7
+  { x: 21, y: 3, w: 8, h: 8 },    // 8
+  { x: 32, y: 3, w: 8, h: 8 },    // 9
+  { x: 40, y: 3, w: 8, h: 8 },    // 10
+  { x: 53, y: 3, w: 8, h: 8 },    // 11
+  { x: 53, y: 19, w: 8, h: 7 },   // 12
+];
+const defaultFixtures = () => [
+  { id: uid(), name: '주방', x: 0, y: 0, w: 10, h: 36 },
+  { id: uid(), name: '카운터', x: 44, y: 31, w: 6, h: 5 },
+  { id: uid(), name: '입구', x: 53, y: 35, w: 11, h: 1 },
+];
+const defaultSlot = i => ({ ...STORE_LAYOUT[i] });
+// 다른 것과 1칸 이상 떨어진 빈자리 찾기 (없으면 붙어있는 자리라도)
+function findFree(w, h, items = [...state.tables, ...state.fixtures]) {
+  const placed = items.filter(o => typeof o.x === 'number');
+  for (const gap of [1, 0]) {
+    for (let y = 0; y + h <= FH; y++) {
+      for (let x = 0; x + w <= FW; x++) {
+        const hit = placed.some(o => x < o.x + o.w + gap && x + w + gap > o.x && y < o.y + o.h + gap && y + h + gap > o.y);
+        if (!hit) return { x, y, w, h };
+      }
+    }
+  }
+  return { x: 0, y: 0, w, h };
+}
+// 저장된 데이터 읽기: 예전 형식이면 배치를 기본값으로 채워넣음
+function fromSaved(saved) {
+  const s = { ...defaultState(), ...saved };
+  if (saved.layoutVer !== LAYOUT_VER) {
+    s.fixtures = defaultFixtures();
+    s.tables.forEach(t => { delete t.x; });
+    s.layoutVer = LAYOUT_VER;
+  }
+  s.tables.forEach((t, i) => {
+    t.shape = t.shape || 'rect';
+    if (typeof t.x !== 'number') Object.assign(t, i < STORE_LAYOUT.length ? defaultSlot(i) : findFree(8, 8, [...s.tables, ...s.fixtures]));
+  });
+  return s;
+}
+let state = load();
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); return true; }
+  catch (e) { toast('⚠ 저장 실패 — 저장 공간이 부족해요 (사진 수를 줄여보세요)'); return false; }
+}
+
+// 사진을 정사각형으로 잘라 작게 줄임 (저장 공간 절약)
+function resizeImage(file, size = 240) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(img.naturalWidth, img.naturalHeight);
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      c.getContext('2d').drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/jpeg', 0.8));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image')); };
+    img.src = url;
+  });
+}
+const tableById = id => state.tables.find(t => t.id === id);
+const menuById = id => state.menu.find(m => m.id === id);
+
+/* =========================================================
+ *  공통 UI: 토스트, 모달, 확인창
+ * ========================================================= */
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function openModal(html, cls = '') {
+  const back = document.createElement('div');
+  back.className = 'backdrop';
+  back.innerHTML = `<div class="modal ${cls}">${html}</div>`;
+  document.body.appendChild(back);
+  requestAnimationFrame(() => back.classList.add('show'));
+  return { el: back.firstElementChild, back, close() { back.remove(); } };
+}
+
+function ask({ title, message = '', buttons }) {
+  return new Promise(resolve => {
+    const m = openModal(`
+      <h3 class="dlg-title">${esc(title)}</h3>
+      ${message ? `<p class="dlg-msg">${esc(message)}</p>` : ''}
+      <div class="dlg-actions">${buttons.map((b, i) =>
+        `<button class="btn ${b.kind || 'ghost'}" data-i="${i}">${esc(b.label)}</button>`).join('')}</div>`, 'dialog');
+    m.el.addEventListener('click', e => {
+      const b = e.target.closest('[data-i]');
+      if (!b) return;
+      m.close();
+      resolve(buttons[+b.dataset.i].value);
+    });
+    m.back.addEventListener('click', e => { if (e.target === m.back) { m.close(); resolve(null); } });
+  });
+}
+const confirmBox = (title, message, okLabel = '확인', kind = 'primary') =>
+  ask({ title, message, buttons: [{ label: '취소', value: false }, { label: okLabel, value: true, kind }] });
+
+/* =========================================================
+ *  화면 전환 / 상단바
+ * ========================================================= */
+let view = 'tables';
+function setView(v) {
+  view = v;
+  editingLayout = false;
+  $('#tableToolbar').hidden = v !== 'tables';
+  $$('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  $$('.view').forEach(s => s.classList.toggle('active', s.id === 'view-' + v));
+  if (v === 'tables') renderTables();
+  if (v === 'sales') renderSales();
+  if (v === 'settings') renderSettings();
+  $('main').scrollTop = 0;
+}
+$('.tabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-view]');
+  if (b) setView(b.dataset.view);
+});
+
+function renderHeader() {
+  $('#brandName').textContent = state.storeName || 'POS';
+  document.title = `${state.storeName || ''} POS`;
+  const today = todayKey();
+  const total = state.sales.filter(s => dateKey(s.closedAt) === today).reduce((a, s) => a + s.total, 0);
+  $('#todayTotal').innerHTML = `오늘 <b>${won(total)}</b>`;
+}
+function tick() {
+  const d = new Date();
+  $('#clock').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function renderAll() {
+  renderHeader();
+  renderTables();
+  if (view === 'sales') renderSales();
+}
+
+$('#fsBtn').addEventListener('click', () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen?.().catch(() => toast('이 브라우저는 전체화면을 지원하지 않아요'));
+});
+
+/* =========================================================
+ *  테이블 화면
+ * ========================================================= */
+function renderTables() {
+  const busy = state.tables.filter(t => state.orders[t.id]);
+  const openTotal = busy.reduce((a, t) => a + sumItems(state.orders[t.id].items), 0);
+  $('#tableSummary').innerHTML = `
+    <span class="pill">사용중<b>${busy.length} / ${state.tables.length}</b></span>
+    <span class="pill">미정산 합계<b>${won(openTotal)}</b></span>`;
+
+  const floorMode = state.tableView !== 'grid';
+  if (!floorMode) editingLayout = false;
+  $('#tableTools').innerHTML = editingLayout
+    ? `<span class="tb-hint">끌어서 옮기기 · ⤡ 끌어서 크기 조절 · 눌러서 이름/모양 변경</span>
+       <button class="btn ghost small" data-tool="addTable">+ 테이블</button>
+       <button class="btn ghost small" data-tool="addFixture">+ 구역</button>
+       <button class="btn primary small" data-tool="done">완료</button>`
+    : `<div class="seg-mini">
+         <button class="${floorMode ? 'on' : ''}" data-tool="floor">배치도</button>
+         <button class="${floorMode ? '' : 'on'}" data-tool="grid">목록</button>
+       </div>
+       ${floorMode ? '<button class="btn ghost small" data-tool="edit">배치 편집</button>' : ''}`;
+
+  const area = $('#tableArea');
+  area.classList.toggle('floor-area', floorMode);
+  if (!floorMode) {
+    area.innerHTML = state.tables.length
+      ? `<div class="table-grid">${state.tables.map(t => {
+          const o = state.orders[t.id];
+          return `<button class="table-card ${o ? 'busy' : 'empty'}" data-table="${t.id}">${tableBody(t, o)}</button>`;
+        }).join('')}</div>`
+      : `<div class="empty-note">테이블이 없어요. 설정 탭에서 추가하세요.</div>`;
+    return;
+  }
+  const rz = editingLayout ? '<i class="rz">⤡</i>' : '';
+  area.innerHTML = `<div class="floor ${editingLayout ? 'editing' : ''}" id="floor">
+    ${state.fixtures.map(f => `<div class="fitem" data-fx="${f.id}" style="${posStyle(f)}">
+      <div class="fbox fixture"><span>${esc(f.name)}</span></div>${rz}</div>`).join('')}
+    ${state.tables.map(t => {
+      const o = state.orders[t.id];
+      return `<div class="fitem" data-ft="${t.id}" ${editingLayout ? '' : `data-table="${t.id}"`} style="${posStyle(t)}">
+        <div class="fbox table-card ${o ? 'busy' : 'empty'} ${t.shape === 'round' ? 'round' : ''}">${tableBody(t, o)}</div>${rz}</div>`;
+    }).join('')}
+  </div>`;
+  requestAnimationFrame(fitTableLines);
+}
+
+// 테이블 칸에 다 들어가는 메뉴 줄까지만 보여주기 (잘린 줄 없이). 못 보여준 건 '총 n개'로 알 수 있음
+function fitTableLines() {
+  $$('.fbox .t-items').forEach(ul => {
+    const lis = [...ul.children];
+    lis.forEach(li => { li.style.display = ''; });
+    let full = false;
+    for (const li of lis) {
+      if (full || li.offsetTop - ul.offsetTop + li.offsetHeight > ul.clientHeight + 1) {
+        li.style.display = 'none';
+        full = true;
+      }
+    }
+  });
+}
+let fitTimer;
+window.addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitTableLines, 100); });
+
+let editingLayout = false;
+const posStyle = o => `left:${o.x / FW * 100}%;top:${o.y / FH * 100}%;width:${o.w / FW * 100}%;height:${o.h / FH * 100}%`;
+const nextTableName = () => {
+  let n = state.tables.length + 1;
+  while (state.tables.some(t => t.name === `${n}번`)) n++;
+  return `${n}번`;
+};
+
+function tableBody(t, o) {
+  if (!o) return `<span class="t-name">${esc(t.name)}</span><span class="t-empty">빈 테이블</span>`;
+  const lines = o.items.map(i => `<li><span>${esc(i.name)}</span><span>${i.qty}</span></li>`).join('');
+  const count = o.items.reduce((a, i) => a + i.qty, 0);
+  return `<div class="t-head"><span class="t-name">${esc(t.name)}</span><span class="t-time">${elapsed(o.openedAt)}</span></div>
+    <ul class="t-items">${lines}</ul>
+    <div class="t-total"><span class="t-cnt">총 ${count}개</span><span>${won(sumItems(o.items))}</span></div>`;
+}
+
+$('#view-tables').addEventListener('click', e => {
+  if (editingLayout) return;
+  const c = e.target.closest('[data-table]');
+  if (c) openOrder(c.dataset.table);
+});
+
+$('#tableTools').addEventListener('click', e => {
+  const tool = e.target.closest('[data-tool]')?.dataset.tool;
+  if (!tool) return;
+  if (tool === 'floor' || tool === 'grid') { state.tableView = tool; save(); }
+  if (tool === 'edit') editingLayout = true;
+  if (tool === 'done') { editingLayout = false; save(); toast('배치를 저장했어요'); }
+  if (tool === 'addTable') {
+    state.tables.push({ id: uid(), name: nextTableName(), shape: 'rect', ...findFree(8, 8) });
+    save();
+  }
+  if (tool === 'addFixture') {
+    const f = { id: uid(), name: '구역', ...findFree(8, 4) };
+    state.fixtures.push(f);
+    save();
+    renderTables();
+    openItemEditor('fixture', f.id);
+    return;
+  }
+  renderTables();
+});
+
+/* 배치 편집: 끌어서 옮기기 / 모서리 끌어서 크기 조절 / 탭하면 설정 */
+let drag = null;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+$('#tableArea').addEventListener('pointerdown', e => {
+  if (!editingLayout || e.button > 0) return;
+  const el = e.target.closest('.fitem');
+  if (!el) return;
+  const isTable = !!el.dataset.ft;
+  const obj = isTable ? tableById(el.dataset.ft) : state.fixtures.find(f => f.id === el.dataset.fx);
+  if (!obj) return;
+  e.preventDefault();
+  el.setPointerCapture(e.pointerId);
+  el.classList.add('dragging');
+  drag = {
+    el, obj, isTable, resize: !!e.target.closest('.rz'),
+    sx: e.clientX, sy: e.clientY, start: { ...obj },
+    ux: $('#floor').clientWidth / FW, uy: $('#floor').clientHeight / FH, moved: false,
+  };
+});
+$('#tableArea').addEventListener('pointermove', e => {
+  if (!drag) return;
+  const px = e.clientX - drag.sx, py = e.clientY - drag.sy;
+  if (Math.abs(px) + Math.abs(py) > 6) drag.moved = true;
+  if (!drag.moved) return;
+  const dx = Math.round(px / drag.ux), dy = Math.round(py / drag.uy);
+  const o = drag.obj, s = drag.start;
+  if (drag.resize) {
+    const min = drag.isTable ? 3 : 1;
+    o.w = clamp(s.w + dx, min, FW - s.x);
+    o.h = clamp(s.h + dy, min, FH - s.y);
+  } else {
+    o.x = clamp(s.x + dx, 0, FW - s.w);
+    o.y = clamp(s.y + dy, 0, FH - s.h);
+  }
+  drag.el.style.cssText = posStyle(o);
+});
+function endDrag(e) {
+  if (!drag) return;
+  const d = drag;
+  drag = null;
+  d.el.classList.remove('dragging');
+  if (d.moved) { save(); fitTableLines(); }
+  else if (e.type === 'pointerup') openItemEditor(d.isTable ? 'table' : 'fixture', d.obj.id);
+}
+$('#tableArea').addEventListener('pointerup', endDrag);
+$('#tableArea').addEventListener('pointercancel', endDrag);
+
+function openItemEditor(kind, id) {
+  const isTable = kind === 'table';
+  const obj = isTable ? tableById(id) : state.fixtures.find(f => f.id === id);
+  if (!obj) return;
+  let shape = obj.shape || 'rect';
+  const m = openModal(`
+    <h3 class="dlg-title">${isTable ? '테이블' : '구역'} 설정</h3>
+    <label class="fld">이름<input class="inp" data-ref="name" value="${esc(obj.name)}" maxlength="${isTable ? 10 : 12}"></label>
+    ${isTable ? `<div class="fld">모양<div class="seg">
+        <button data-shape="rect" class="${shape === 'rect' ? 'on' : ''}">▢ 사각</button>
+        <button data-shape="round" class="${shape === 'round' ? 'on' : ''}">◯ 원형</button>
+      </div></div>`
+      : `<p class="hint" style="margin:0 0 14px">주방, 카운터, 입구, 화장실처럼 위치 표시용이에요.</p>`}
+    <div class="dlg-actions">
+      <button class="btn danger" data-act="del">삭제</button>
+      <button class="btn primary" data-act="ok">저장</button>
+    </div>`, 'dialog');
+  const nameInp = $('[data-ref="name"]', m.el);
+  m.el.addEventListener('click', async e => {
+    const sb = e.target.closest('[data-shape]');
+    if (sb) {
+      shape = sb.dataset.shape;
+      $$('[data-shape]', m.el).forEach(b => b.classList.toggle('on', b === sb));
+      return;
+    }
+    const act = e.target.closest('[data-act]')?.dataset.act;
+    if (act === 'ok') {
+      obj.name = nameInp.value.trim() || obj.name;
+      if (isTable) obj.shape = shape;
+      save(); m.close(); renderTables();
+    }
+    if (act === 'del') {
+      if (isTable && state.orders[id]) return toast('사용중인 테이블은 삭제할 수 없어요');
+      if (!await confirmBox('삭제', `'${obj.name}'을(를) 삭제할까요?`, '삭제', 'danger')) return;
+      if (isTable) state.tables = state.tables.filter(t => t.id !== id);
+      else state.fixtures = state.fixtures.filter(f => f.id !== id);
+      save(); m.close(); renderTables();
+    }
+  });
+  m.back.addEventListener('click', e => { if (e.target === m.back) m.close(); });
+}
+
+/* =========================================================
+ *  주문 모달 — 메뉴 누르면 추가, +/- 로 수량, [주문 확인]으로 저장
+ * ========================================================= */
+// 사진 없는 메뉴에 들어가는 빈 그림 칸
+const NO_IMG = `<span class="mimg noimg">
+  <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5.5-5.5L6 20"/>
+  </svg><span>사진 없음</span></span>`;
+
+function openOrder(tableId) {
+  const table = tableById(tableId);
+  if (!table) return;
+  const committed = () => state.orders[tableId];
+  let draft = committed() ? clone(committed().items) : [];
+  let cat = state.categories[0];
+
+  const m = openModal(`
+    <div class="modal-head">
+      <div><h2>${esc(table.name)} 테이블</h2><div class="sub" data-ref="sub"></div></div>
+      <button class="icon-btn" data-act="close" aria-label="닫기">✕</button>
+    </div>
+    <div class="order-body">
+      <div class="menu-pane">
+        <div class="cat-tabs" data-ref="cats"></div>
+        <div class="menu-grid" data-ref="menu"></div>
+      </div>
+      <div class="cart-pane">
+        <div class="cart-list" data-ref="cart"></div>
+        <div class="cart-foot">
+          <div class="cart-total"><span>합계</span><strong data-ref="total"></strong></div>
+          <div class="cart-actions">
+            <button class="btn ghost" data-act="move">테이블 이동</button>
+            <button class="btn ghost" data-act="clear">전체 삭제</button>
+            <button class="btn primary" data-act="confirm">주문 확인</button>
+            <button class="btn pay" data-act="pay">정산하기</button>
+          </div>
+        </div>
+      </div>
+    </div>`, 'order-modal');
+
+  const ref = n => $(`[data-ref="${n}"]`, m.el);
+  const dirty = () => !sameItems(draft, committed()?.items || []);
+
+  function renderCats() {
+    ref('cats').innerHTML = state.categories.map(c =>
+      `<button class="${c === cat ? 'on' : ''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
+  }
+  function renderMenu() {
+    const q = {};
+    draft.forEach(i => { q[i.menuId] = (q[i.menuId] || 0) + i.qty; });
+    const items = state.menu.filter(x => x.cat === cat);
+    ref('menu').innerHTML = items.length
+      ? items.map(x => `<button class="menu-btn has-img" data-menu="${x.id}">
+          ${x.img ? `<img class="mimg" src="${x.img}" alt="">` : NO_IMG}
+          <span class="mtxt"><span class="mn">${esc(x.name)}</span><span class="mp">${won(x.price)}</span></span>
+          ${q[x.id] ? `<span class="mq">${q[x.id]}</span>` : ''}
+        </button>`).join('')
+      : `<div class="cart-empty">이 분류에 메뉴가 없어요.<br>설정 탭에서 추가하세요.</div>`;
+  }
+  function renderCart() {
+    const base = qtyMap(committed()?.items || []);
+    ref('cart').innerHTML = draft.length
+      ? draft.map((it, idx) => {
+          const diff = it.qty - (base[lineKey(it)] || 0);
+          const badge = diff > 0 ? `<span class="badge add">+${diff} 추가</span>`
+                      : diff < 0 ? `<span class="badge sub">${diff}</span>` : '';
+          return `<div class="cart-line" data-k="${esc(lineKey(it))}">
+            <div><div class="cl-name">${esc(it.name)}${badge}</div><div class="cl-price">${won(it.price)}</div></div>
+            <div class="qty">
+              <button data-dec="${idx}" aria-label="빼기">−</button>
+              <span>${it.qty}</span>
+              <button data-inc="${idx}" aria-label="더하기">+</button>
+            </div>
+            <div class="cl-sum">${won(it.price * it.qty)}</div>
+          </div>`;
+        }).join('')
+      : `<div class="cart-empty">메뉴를 눌러<br>주문을 추가하세요</div>`;
+  }
+  function renderStatus() {
+    const o = committed();
+    const d = dirty();
+    ref('sub').innerHTML = (o ? `사용중 · ${fmtTime(o.openedAt)} 입장 (${elapsed(o.openedAt)})` : '빈 테이블')
+      + (d ? ' · <em>● 주문 확인 전</em>' : '');
+    ref('total').textContent = won(sumItems(draft));
+    $('[data-act="confirm"]', m.el).classList.toggle('attn', d);
+  }
+  function refresh() { renderMenu(); renderCart(); renderStatus(); }
+
+  function add(menuId) {
+    const mi = menuById(menuId);
+    if (!mi) return;
+    let line = draft.find(i => i.menuId === mi.id && i.price === mi.price);
+    if (line) line.qty++;
+    else draft.push(line = { menuId: mi.id, name: mi.name, price: mi.price, qty: 1 });
+    refresh();
+    $(`[data-menu="${menuId}"]`, m.el)?.classList.add('pop');
+    const row = $(`[data-k="${CSS.escape(lineKey(line))}"]`, m.el);
+    if (row) { row.classList.add('flash'); row.scrollIntoView({ block: 'nearest' }); }
+  }
+
+  function commit() {
+    const now = Date.now();
+    if (!draft.length) delete state.orders[tableId];
+    else state.orders[tableId] = { items: clone(draft), openedAt: committed()?.openedAt || now, updatedAt: now };
+    save();
+    renderAll();
+  }
+
+  async function tryClose() {
+    if (!dirty()) return m.close();
+    const r = await ask({
+      title: '주문 확인을 안 눌렀어요',
+      message: '변경한 주문 내용을 저장할까요?',
+      buttons: [
+        { label: '계속 입력', value: 'stay' },
+        { label: '버리기', value: 'discard', kind: 'danger' },
+        { label: '저장', value: 'save', kind: 'primary' },
+      ],
+    });
+    if (r === 'discard') m.close();
+    if (r === 'save') { commit(); m.close(); toast(`${table.name} 주문 저장`); }
+  }
+
+  m.el.addEventListener('click', async e => {
+    const t = e.target;
+    const catBtn = t.closest('[data-cat]');
+    if (catBtn) { cat = catBtn.dataset.cat; renderCats(); renderMenu(); return; }
+    const menuBtn = t.closest('[data-menu]');
+    if (menuBtn) { add(menuBtn.dataset.menu); return; }
+    const inc = t.closest('[data-inc]');
+    if (inc) { draft[+inc.dataset.inc].qty++; refresh(); return; }
+    const dec = t.closest('[data-dec]');
+    if (dec) {
+      const i = +dec.dataset.dec;
+      if (--draft[i].qty <= 0) draft.splice(i, 1);
+      refresh();
+      return;
+    }
+
+    const act = t.closest('[data-act]')?.dataset.act;
+    if (act === 'close') tryClose();
+
+    if (act === 'clear') {
+      if (!draft.length) return;
+      if (await confirmBox('전체 삭제', '장바구니의 메뉴를 모두 지울까요?\n(주문 확인을 눌러야 실제로 반영돼요)', '지우기', 'danger')) {
+        draft = [];
+        refresh();
+      }
+    }
+
+    if (act === 'confirm') {
+      if (!dirty()) return m.close();
+      if (!draft.length && committed()) {
+        const ok = await confirmBox('주문 전체 취소', `${table.name} 테이블을 빈 테이블로 만들까요?`, '빈 테이블로', 'danger');
+        if (!ok) return;
+      }
+      commit();
+      m.close();
+      toast(draft.length ? `${table.name} 주문 저장 · ${won(sumItems(draft))}` : `${table.name} 빈 테이블`);
+    }
+
+    if (act === 'pay') {
+      if (!draft.length) return toast('주문 내역이 없어요');
+      if (dirty()) commit();
+      m.close();
+      openCheckout(tableId);
+    }
+
+    if (act === 'move') {
+      if (!draft.length) return toast('옮길 주문이 없어요');
+      if (dirty()) commit();
+      m.close();
+      openMove(tableId);
+    }
+  });
+  m.back.addEventListener('click', e => { if (e.target === m.back) tryClose(); });
+
+  renderCats();
+  refresh();
+}
+
+/* =========================================================
+ *  정산
+ * ========================================================= */
+function openCheckout(tableId) {
+  const table = tableById(tableId);
+  const o = state.orders[tableId];
+  if (!table || !o) return;
+  const total = sumItems(o.items);
+  let method = METHODS[0];
+
+  const m = openModal(`
+    <div class="modal-head">
+      <div><h2>${esc(table.name)} 테이블 정산</h2>
+        <div class="sub">${fmtTime(o.openedAt)} 입장 · ${elapsed(o.openedAt)} 이용</div></div>
+      <button class="icon-btn" data-act="close" aria-label="닫기">✕</button>
+    </div>
+    <div class="receipt">
+      ${o.items.map(i => `<div class="r-line">
+        <span>${esc(i.name)}</span><span>${i.qty} × ${won(i.price)}</span><strong>${won(i.qty * i.price)}</strong>
+      </div>`).join('')}
+    </div>
+    <div class="r-total"><span>결제 금액</span><strong>${won(total)}</strong></div>
+    <div class="methods">${METHODS.map(x =>
+      `<button class="method ${x === method ? 'on' : ''}" data-method="${x}">${x}</button>`).join('')}</div>
+    <div class="dlg-actions">
+      <button class="btn ghost" data-act="back">← 주문 수정</button>
+      <button class="btn pay" data-act="done">정산 완료</button>
+    </div>`, 'checkout-modal');
+
+  m.el.addEventListener('click', e => {
+    const mb = e.target.closest('[data-method]');
+    if (mb) {
+      method = mb.dataset.method;
+      $$('[data-method]', m.el).forEach(b => b.classList.toggle('on', b.dataset.method === method));
+      return;
+    }
+    const act = e.target.closest('[data-act]')?.dataset.act;
+    if (act === 'close') m.close();
+    if (act === 'back') { m.close(); openOrder(tableId); }
+    if (act === 'done') {
+      state.sales.push({
+        id: uid(), tableId, tableName: table.name, items: clone(o.items),
+        total, method, openedAt: o.openedAt, closedAt: Date.now(),
+      });
+      delete state.orders[tableId];
+      save();
+      renderAll();
+      m.close();
+      toast(`${table.name} 정산 완료 · ${won(total)} (${method})`);
+    }
+  });
+  m.back.addEventListener('click', e => { if (e.target === m.back) m.close(); });
+}
+
+/* =========================================================
+ *  테이블 이동 / 합석
+ * ========================================================= */
+function openMove(fromId) {
+  const from = tableById(fromId);
+  const o = state.orders[fromId];
+  if (!from || !o) return;
+  const others = state.tables.filter(t => t.id !== fromId);
+
+  const m = openModal(`
+    <div class="modal-head">
+      <div><h2>${esc(from.name)} → 어디로 옮길까요?</h2>
+        <div class="sub">빈 테이블을 누르면 이동, 사용중 테이블을 누르면 주문을 합쳐요</div></div>
+      <button class="icon-btn" data-act="close" aria-label="닫기">✕</button>
+    </div>
+    <div class="move-grid">${others.map(t => {
+      const ot = state.orders[t.id];
+      return `<button class="move-btn ${ot ? 'busy' : ''}" data-to="${t.id}">
+        ${esc(t.name)}<small>${ot ? '합석 · ' + won(sumItems(ot.items)) : '빈 테이블'}</small></button>`;
+    }).join('')}</div>`, 'dialog wide');
+
+  m.el.addEventListener('click', async e => {
+    if (e.target.closest('[data-act="close"]')) return m.close();
+    const b = e.target.closest('[data-to]');
+    if (!b) return;
+    const to = tableById(b.dataset.to);
+    const target = state.orders[to.id];
+    if (target) {
+      const ok = await confirmBox('주문 합치기', `${from.name} 주문을 ${to.name} 테이블로 합칠까요?`, '합치기');
+      if (!ok) return;
+      state.orders[to.id] = {
+        items: mergeItems(target.items, o.items),
+        openedAt: Math.min(target.openedAt, o.openedAt),
+        updatedAt: Date.now(),
+      };
+    } else {
+      state.orders[to.id] = { ...o, updatedAt: Date.now() };
+    }
+    delete state.orders[fromId];
+    save();
+    renderAll();
+    m.close();
+    toast(`${from.name} → ${to.name} ${target ? '합석' : '이동'} 완료`);
+  });
+  m.back.addEventListener('click', e => { if (e.target === m.back) m.close(); });
+}
+
+/* =========================================================
+ *  매출 화면
+ * ========================================================= */
+let salesDate = todayKey();
+function shiftDate(key, days) {
+  const [y, mo, d] = key.split('-').map(Number);
+  return dateKey(new Date(y, mo - 1, d + days).getTime());
+}
+
+function renderSales() {
+  const el = $('#view-sales');
+  const isToday = salesDate === todayKey();
+  const day = state.sales.filter(s => dateKey(s.closedAt) === salesDate).sort((a, b) => b.closedAt - a.closedAt);
+  const total = day.reduce((a, s) => a + s.total, 0);
+  const month = salesDate.slice(0, 7);
+  const monthTotal = state.sales.filter(s => dateKey(s.closedAt).startsWith(month)).reduce((a, s) => a + s.total, 0);
+  const byMethod = Object.fromEntries(METHODS.map(x => [x, 0]));
+  day.forEach(s => { byMethod[s.method] = (byMethod[s.method] || 0) + s.total; });
+
+  const rank = {};
+  day.forEach(s => s.items.forEach(i => {
+    const r = rank[i.name] || (rank[i.name] = { name: i.name, qty: 0, amount: 0 });
+    r.qty += i.qty;
+    r.amount += i.qty * i.price;
+  }));
+  const ranked = Object.values(rank).sort((a, b) => b.qty - a.qty || b.amount - a.amount);
+
+  const openTables = state.tables.filter(t => state.orders[t.id]);
+  const openTotal = openTables.reduce((a, t) => a + sumItems(state.orders[t.id].items), 0);
+
+  el.innerHTML = `
+    <div class="sales-head">
+      <button class="icon-btn" data-day="-1" aria-label="이전 날">‹</button>
+      <input type="date" class="inp date-inp" id="salesDate" value="${salesDate}">
+      <button class="icon-btn" data-day="1" aria-label="다음 날">›</button>
+      ${isToday ? '' : '<button class="btn ghost small" data-day="0">오늘로</button>'}
+    </div>
+    <div class="stat-grid">
+      <div class="stat main"><div class="k">${isToday ? '오늘' : salesDate.slice(5).replace('-', '/')} 매출</div><div class="v">${won(total)}</div></div>
+      <div class="stat"><div class="k">정산 건수</div><div class="v">${day.length}건</div></div>
+      ${METHODS.map(x => `<div class="stat"><div class="k">${x}</div><div class="v">${won(byMethod[x])}</div></div>`).join('')}
+      <div class="stat"><div class="k">${Number(month.slice(5))}월 누계</div><div class="v">${won(monthTotal)}</div></div>
+      ${isToday && openTables.length ? `<div class="stat warn"><div class="k">미정산 (${openTables.length}테이블)</div><div class="v">${won(openTotal)}</div></div>` : ''}
+    </div>
+    <div class="sales-cols">
+      <div class="panel">
+        <h3>정산 내역</h3>
+        ${day.length ? day.map(s => `<div class="sale-row">
+          <div class="s-top">
+            <span class="s-time">${fmtTime(s.closedAt)}</span>
+            <b>${esc(s.tableName)}</b>
+            <span class="tag">${esc(s.method)}</span>
+            <strong class="s-total">${won(s.total)}</strong>
+            <button class="link-btn" data-undo="${s.id}">정산 취소</button>
+          </div>
+          <div class="s-items">${s.items.map(i => `${esc(i.name)} ${i.qty}`).join(' · ')}</div>
+        </div>`).join('') : '<div class="empty-note">정산 내역이 없어요</div>'}
+      </div>
+      <div class="panel">
+        <h3>메뉴별 판매</h3>
+        ${ranked.length ? `<table class="rank">
+          <thead><tr><th>메뉴</th><th>수량</th><th>금액</th></tr></thead>
+          <tbody>${ranked.map(r => `<tr><td>${esc(r.name)}</td><td>${r.qty}</td><td>${won(r.amount)}</td></tr>`).join('')}</tbody>
+        </table>` : '<div class="empty-note">—</div>'}
+      </div>
+    </div>`;
+}
+
+$('#view-sales').addEventListener('click', e => {
+  const d = e.target.closest('[data-day]');
+  if (d) {
+    const n = +d.dataset.day;
+    salesDate = n === 0 ? todayKey() : shiftDate(salesDate, n);
+    renderSales();
+    return;
+  }
+  const u = e.target.closest('[data-undo]');
+  if (u) undoSale(u.dataset.undo);
+});
+$('#view-sales').addEventListener('change', e => {
+  if (e.target.id === 'salesDate' && e.target.value) { salesDate = e.target.value; renderSales(); }
+});
+
+async function undoSale(id) {
+  const s = state.sales.find(x => x.id === id);
+  if (!s) return;
+  const t = tableById(s.tableId);
+  const canRestore = t && !state.orders[t.id];
+  const choice = await ask({
+    title: '정산 취소',
+    message: `${fmtTime(s.closedAt)} ${s.tableName} · ${won(s.total)} (${s.method})\n`
+      + (canRestore ? '주문을 테이블로 되돌리거나, 기록만 삭제할 수 있어요.' : '해당 테이블이 사용중이라 기록 삭제만 할 수 있어요.'),
+    buttons: [
+      { label: '닫기', value: null },
+      { label: '기록 삭제', value: 'delete', kind: 'danger' },
+      ...(canRestore ? [{ label: '테이블로 되돌리기', value: 'restore', kind: 'primary' }] : []),
+    ],
+  });
+  if (!choice) return;
+  if (choice === 'restore') state.orders[t.id] = { items: clone(s.items), openedAt: s.openedAt, updatedAt: Date.now() };
+  state.sales = state.sales.filter(x => x.id !== id);
+  save();
+  renderAll();
+  toast(choice === 'restore' ? `${t.name} 테이블로 되돌렸어요` : '정산 기록을 삭제했어요');
+}
+
+/* =========================================================
+ *  설정 화면 — 가게 이름, 테이블, 메뉴, 백업
+ * ========================================================= */
+function renderSettings() {
+  $('#view-settings').innerHTML = `<div class="set-wrap">
+    <section class="set-card">
+      <h3>메뉴 <small>📷을 눌러 사진 등록 · 가격을 바꿔도 이미 받은 주문 금액은 그대로예요</small></h3>
+      <input type="file" id="menuImgFile" accept="image/*" hidden>
+      ${state.categories.map((c, ci) => {
+        const items = state.menu.filter(x => x.cat === c);
+        return `<div class="set-cat">
+          <div class="set-cat-head">
+            <input class="inp cat-inp" data-ci="${ci}" value="${esc(c)}" maxlength="10">
+            <button class="icon-btn" data-cat-up="${ci}" ${ci === 0 ? 'disabled' : ''} title="분류 앞으로">↑</button>
+            <button class="icon-btn del" data-cat-del="${ci}" title="분류 삭제">✕</button>
+          </div>
+          ${items.map((x, mi) => `<div class="set-row menu-row">
+            <button class="thumb ${x.img ? 'on' : ''}" data-mimg="${x.id}" title="사진">
+              ${x.img ? `<img src="${x.img}" alt="">` : '📷<br>사진'}</button>
+            <input class="inp name" data-mname="${x.id}" value="${esc(x.name)}" maxlength="20">
+            <input class="inp price" data-mprice="${x.id}" type="number" inputmode="numeric" min="0" step="500" value="${x.price}">
+            <select class="inp sel" data-mcat="${x.id}">${state.categories.map(k =>
+              `<option ${k === x.cat ? 'selected' : ''}>${esc(k)}</option>`).join('')}</select>
+            <button class="icon-btn" data-mup="${x.id}" ${mi === 0 ? 'disabled' : ''} title="앞으로">↑</button>
+            <button class="icon-btn del" data-mdel="${x.id}" title="삭제">✕</button>
+          </div>`).join('')}
+          <button class="btn ghost small" data-add-menu="${ci}">+ ${esc(c)} 메뉴 추가</button>
+        </div>`;
+      }).join('')}
+      <button class="btn ghost small" data-act="addCat">+ 분류 추가</button>
+    </section>
+
+    <section class="set-card">
+      <h3>테이블 <small>${state.tables.length}개 · 이름은 바꾸면 바로 저장돼요</small></h3>
+      <div class="table-set">${state.tables.map((t, i) => `
+        <div class="set-row">
+          <input class="inp" data-tname="${t.id}" value="${esc(t.name)}" maxlength="10">
+          <button class="icon-btn" data-tup="${t.id}" ${i === 0 ? 'disabled' : ''} title="앞으로">↑</button>
+          <button class="icon-btn del" data-tdel="${t.id}" title="삭제">✕</button>
+        </div>`).join('')}
+      </div>
+      <button class="btn ghost small" data-act="addTable">+ 테이블 추가</button>
+    </section>
+
+    <section class="set-card">
+      <h3>가게 이름</h3>
+      <input class="inp" data-set="storeName" value="${esc(state.storeName)}" maxlength="20">
+    </section>
+
+    <section class="set-card">
+      <h3>데이터</h3>
+      <div class="data-actions">
+        <button class="btn ghost" data-act="export">백업 파일 저장</button>
+        <button class="btn ghost" data-act="import">백업 불러오기</button>
+        <button class="btn danger" data-act="resetSales">매출 기록 삭제</button>
+        <button class="btn danger" data-act="resetAll">전체 초기화</button>
+      </div>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <p class="hint">데이터는 이 기기 브라우저 안에 저장돼요. 브라우저의 방문 기록·사이트 데이터를 지우면 사라지니, 가끔 백업 파일을 저장해 두세요.</p>
+    </section>
+  </div>`;
+}
+
+let imgTargetId = null;
+$('#view-settings').addEventListener('change', e => {
+  const t = e.target, d = t.dataset;
+  if (d.set === 'storeName') {
+    state.storeName = t.value.trim() || '우리가게';
+    t.value = state.storeName;
+    save(); renderHeader();
+  } else if (d.tname) {
+    const tb = tableById(d.tname);
+    tb.name = t.value.trim() || tb.name;
+    t.value = tb.name;
+    save(); renderTables();
+  } else if (d.mname) {
+    const x = menuById(d.mname);
+    x.name = t.value.trim() || x.name;
+    t.value = x.name;
+    save();
+  } else if (d.mprice) {
+    const x = menuById(d.mprice);
+    x.price = Math.max(0, Math.round(Number(t.value) || 0));
+    t.value = x.price;
+    save();
+  } else if (d.mcat) {
+    menuById(d.mcat).cat = t.value;
+    save(); renderSettings();
+  } else if (d.ci !== undefined) {
+    const i = +d.ci, old = state.categories[i], nv = t.value.trim();
+    if (!nv || (nv !== old && state.categories.includes(nv))) {
+      toast('비어 있거나 이미 있는 분류 이름이에요');
+      t.value = old;
+      return;
+    }
+    state.categories[i] = nv;
+    state.menu.forEach(x => { if (x.cat === old) x.cat = nv; });
+    save(); renderSettings();
+  } else if (t.id === 'menuImgFile') {
+    const file = t.files[0], x = menuById(imgTargetId);
+    t.value = '';
+    if (!file || !x) return;
+    resizeImage(file).then(dataUrl => {
+      const prev = x.img;
+      x.img = dataUrl;
+      if (!save()) { x.img = prev; return; }
+      renderSettings();
+      toast(`'${x.name}' 사진 등록`);
+    }).catch(() => toast('사진을 읽을 수 없어요'));
+  } else if (t.id === 'importFile') {
+    importBackup(t.files[0]);
+    t.value = '';
+  }
+});
+
+$('#view-settings').addEventListener('click', async e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  const d = b.dataset;
+  const swap = (arr, i, j) => { [arr[i], arr[j]] = [arr[j], arr[i]]; };
+
+  if (d.act === 'addTable') {
+    state.tables.push({ id: uid(), name: nextTableName(), shape: 'rect', ...findFree(8, 8) });
+    save(); renderSettings(); renderTables();
+  } else if (d.tup) {
+    const i = state.tables.findIndex(t => t.id === d.tup);
+    if (i > 0) { swap(state.tables, i, i - 1); save(); renderSettings(); renderTables(); }
+  } else if (d.tdel) {
+    const t = tableById(d.tdel);
+    if (state.orders[t.id]) return toast('사용중인 테이블은 삭제할 수 없어요');
+    if (!await confirmBox('테이블 삭제', `${t.name} 테이블을 삭제할까요?`, '삭제', 'danger')) return;
+    state.tables = state.tables.filter(x => x.id !== t.id);
+    save(); renderSettings(); renderTables();
+  } else if (d.addMenu !== undefined) {
+    const item = { id: uid(), cat: state.categories[+d.addMenu], name: '새 메뉴', price: 0 };
+    state.menu.push(item);
+    save(); renderSettings();
+    const inp = $(`[data-mname="${item.id}"]`);
+    inp?.focus(); inp?.select();
+  } else if (d.mimg) {
+    const x = menuById(d.mimg);
+    imgTargetId = x.id;
+    if (!x.img) return $('#menuImgFile').click();
+    const r = await ask({
+      title: `${x.name} 사진`,
+      buttons: [
+        { label: '닫기', value: null },
+        { label: '사진 삭제', value: 'del', kind: 'danger' },
+        { label: '사진 바꾸기', value: 'change', kind: 'primary' },
+      ],
+    });
+    if (r === 'change') $('#menuImgFile').click();
+    if (r === 'del') { delete x.img; save(); renderSettings(); }
+  } else if (d.mup) {
+    const i = state.menu.findIndex(x => x.id === d.mup);
+    const cat = state.menu[i].cat;
+    for (let j = i - 1; j >= 0; j--) {
+      if (state.menu[j].cat === cat) { swap(state.menu, i, j); break; }
+    }
+    save(); renderSettings();
+  } else if (d.mdel) {
+    const x = menuById(d.mdel);
+    if (!await confirmBox('메뉴 삭제', `'${x.name}' 메뉴를 삭제할까요?\n(이미 받은 주문과 매출 기록은 그대로 남아요)`, '삭제', 'danger')) return;
+    state.menu = state.menu.filter(y => y.id !== x.id);
+    save(); renderSettings();
+  } else if (d.act === 'addCat') {
+    let name = '새 분류', n = 2;
+    while (state.categories.includes(name)) name = `새 분류 ${n++}`;
+    state.categories.push(name);
+    save(); renderSettings();
+  } else if (d.catUp !== undefined) {
+    const i = +d.catUp;
+    if (i > 0) { swap(state.categories, i, i - 1); save(); renderSettings(); }
+  } else if (d.catDel !== undefined) {
+    const i = +d.catDel, c = state.categories[i];
+    if (state.categories.length <= 1) return toast('분류는 최소 1개가 있어야 해요');
+    const cnt = state.menu.filter(x => x.cat === c).length;
+    const msg = cnt ? `'${c}' 분류와 그 안의 메뉴 ${cnt}개를 모두 삭제할까요?` : `'${c}' 분류를 삭제할까요?`;
+    if (!await confirmBox('분류 삭제', msg, '삭제', 'danger')) return;
+    state.categories.splice(i, 1);
+    state.menu = state.menu.filter(x => x.cat !== c);
+    save(); renderSettings();
+  } else if (d.act === 'export') {
+    exportBackup();
+  } else if (d.act === 'import') {
+    $('#importFile').click();
+  } else if (d.act === 'resetSales') {
+    if (!await confirmBox('매출 기록 삭제', '모든 정산 기록을 삭제할까요? 되돌릴 수 없어요.\n먼저 백업 파일을 저장해 두는 걸 권해요.', '모두 삭제', 'danger')) return;
+    state.sales = [];
+    save(); renderAll(); toast('매출 기록을 삭제했어요');
+  } else if (d.act === 'resetAll') {
+    if (!await confirmBox('전체 초기화', '메뉴, 테이블, 주문, 매출을 모두 처음 상태로 되돌려요. 되돌릴 수 없어요.', '초기화', 'danger')) return;
+    state = defaultState();
+    save(); renderAll(); renderSettings(); toast('초기화했어요');
+  }
+});
+
+function exportBackup() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `pos-backup-${todayKey()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+async function importBackup(file) {
+  if (!file) return;
+  let s;
+  try {
+    s = JSON.parse(await file.text());
+    if (!Array.isArray(s.tables) || !Array.isArray(s.menu)) throw new Error('invalid');
+  } catch {
+    return toast('올바른 백업 파일이 아니에요');
+  }
+  if (!await confirmBox('백업 불러오기', '지금 데이터(주문·메뉴·매출)를 백업 파일 내용으로 바꿀까요?', '불러오기', 'danger')) return;
+  state = fromSaved(s);
+  save(); renderAll(); renderSettings(); toast('백업을 불러왔어요');
+}
+
+/* =========================================================
+ *  시작
+ * ========================================================= */
+// 같은 기기에서 창을 두 개 띄웠을 때 서로 맞춰줌
+window.addEventListener('storage', e => {
+  if (e.key !== KEY) return;
+  state = load();
+  renderAll();
+  if (view === 'settings') renderSettings();
+});
+
+// 태블릿 화면이 꺼지지 않게 (지원하는 브라우저에서만)
+let wakeLock = null;
+async function keepAwake() {
+  if (wakeLock || !('wakeLock' in navigator) || document.visibilityState !== 'visible') return;
+  try {
+    wakeLock = await navigator.wakeLock.request('screen');
+    wakeLock.addEventListener('release', () => { wakeLock = null; });
+  } catch { /* 지원 안 하면 무시 */ }
+}
+document.addEventListener('pointerdown', keepAwake);
+document.addEventListener('visibilitychange', keepAwake);
+
+renderAll();
+tick();
+setInterval(() => {
+  tick();
+  renderHeader();
+  if (view === 'tables' && !editingLayout && !document.querySelector('.backdrop')) renderTables();
+}, 30000);
+</script>
+</body>
+</html>
