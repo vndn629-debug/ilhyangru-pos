@@ -269,9 +269,7 @@
   .r-line strong { text-align: right; }
   .r-total { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 20px; background: var(--surface-2); border-block: 1px solid var(--line); flex-shrink: 0; }
   .r-total strong { font-size: 30px; color: var(--pay); font-variant-numeric: tabular-nums; }
-  .methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 16px 20px 0; flex-shrink: 0; }
-  .method { padding: 14px 6px; border-radius: 12px; border: 2px solid var(--line); font-weight: 700; background: var(--surface); }
-  .method.on { border-color: var(--pay); background: var(--pay-soft); color: var(--pay); }
+  .done-btn { min-height: 64px; font-size: 22px; }
   .checkout-modal .dlg-actions { padding: 16px 20px 20px; flex-shrink: 0; }
 
   .move-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; overflow-y: auto; min-height: 0; }
@@ -281,30 +279,64 @@
   .move-btn.busy small { color: rgba(255,255,255,.85); }
 
   /* ---------- 매출 화면 ---------- */
-  .sales-head { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-  .sales-head .date-inp { width: auto; flex: 0 1 200px; min-width: 0; }
-  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .sales-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .seg-mini.big button { padding: 10px 22px; font-size: 17px; }
+  .period-nav { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+  .period-label { font-size: 22px; font-weight: 800; min-width: 150px; text-align: center; }
+  .period-nav .date-inp { width: auto; flex: 0 1 190px; min-width: 0; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 16px; }
   .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
-  .stat .k { font-size: 13px; color: var(--muted); }
-  .stat .v { font-size: 22px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; }
-  .stat.main { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .stat .k { font-size: 14px; color: var(--muted); }
+  .stat .v { font-size: 26px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .stat.main { background: var(--ink); border-color: var(--ink); color: #fff; grid-column: span 2; }
   .stat.main .k { color: rgba(255,255,255,.7); }
+  .stat.main .v { font-size: 34px; }
+  .stat .cmp { font-size: 14px; margin-top: 4px; color: rgba(255,255,255,.8); font-variant-numeric: tabular-nums; }
   .stat.warn .v { color: var(--warn); }
-  .sales-cols { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; align-items: start; }
-  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
-  .panel h3 { margin: 0 0 8px; font-size: 16px; }
+  .sales-cols { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: start; margin-top: 16px; }
+  .side-col { display: grid; gap: 16px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+  .panel h3 { margin: 0 0 10px; font-size: 18px; }
+  .panel h3 small { font-size: 13px; font-weight: 500; color: var(--muted); margin-left: 6px; }
   .sale-row { padding: 12px 0; border-bottom: 1px solid var(--line); }
   .sale-row:last-child { border-bottom: 0; }
-  .s-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .s-time { color: var(--muted); font-variant-numeric: tabular-nums; }
-  .tag { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--pay-soft); color: var(--pay); }
+  .s-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 17px; }
+  .s-time { color: var(--muted); font-size: 15px; font-variant-numeric: tabular-nums; }
   .s-total { margin-left: auto; font-variant-numeric: tabular-nums; }
-  .s-items { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .s-items { font-size: 15px; color: var(--muted); margin-top: 4px; }
   .link-btn { font-size: 13px; color: var(--primary); padding: 6px 8px; border-radius: 8px; border: 1px solid #efd0cd; }
-  .rank { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
-  .rank th { text-align: left; font-size: 13px; color: var(--muted); font-weight: 600; padding: 6px 0; border-bottom: 1px solid var(--line); }
-  .rank td { padding: 8px 0; border-bottom: 1px solid var(--line); }
-  .rank th:not(:first-child), .rank td:not(:first-child) { text-align: right; }
+  .rank { width: 100%; border-collapse: collapse; font-size: 16px; font-variant-numeric: tabular-nums; }
+  .rank th { text-align: left; font-size: 13px; color: var(--muted); font-weight: 600; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+  .rank td { padding: 9px 4px; border-bottom: 1px solid var(--line); }
+  .rank th:not(:nth-child(-n+2)), .rank td:not(:nth-child(-n+2)) { text-align: right; }
+  .rank tfoot td { border-bottom: 0; font-weight: 800; padding-top: 12px; }
+  .go-table tbody tr { cursor: pointer; }
+  .go-table tbody tr:hover { background: var(--surface-2); }
+  .more-btn { width: 100%; margin-top: 10px; }
+  .cat-row { display: grid; grid-template-columns: 76px 1fr auto 42px; align-items: center; gap: 10px; padding: 7px 0; font-size: 16px; font-variant-numeric: tabular-nums; }
+  .cat-name { font-weight: 700; }
+  .cat-bar { height: 12px; background: var(--surface-2); border-radius: 6px; overflow: hidden; }
+  .cat-bar i { display: block; height: 100%; background: var(--primary); border-radius: 0 4px 4px 0; }
+  .cat-row small { color: var(--muted); text-align: right; }
+
+  /* 막대 그래프 (매출 한 가지 값 = 가게 빨간색 하나, 눈금선은 흐리게) */
+  .chart { position: relative; height: 260px; margin: 34px 4px 30px 48px; }
+  .chart .gl { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--line); }
+  .chart .gl span { position: absolute; right: calc(100% + 8px); top: -9px; font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .bars { position: absolute; inset: 0; display: flex; gap: 2px; border-bottom: 1px solid #cfc6b9; }
+  .bar-col { flex: 1; min-width: 0; position: relative; display: flex; border-radius: 6px 6px 0 0; }
+  .bar-col:hover { background: rgba(0,0,0,.04); }
+  .bar-track { flex: 1; display: flex; align-items: flex-end; justify-content: center; }
+  .bar { width: 72%; max-width: 46px; background: var(--primary); border-radius: 4px 4px 0 0; position: relative; }
+  .bar-val { position: absolute; bottom: 100%; left: 50%; transform: translate(-50%, -4px); font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--ink); }
+  .bar-x { position: absolute; top: calc(100% + 6px); left: 0; right: 0; text-align: center; font-size: 14px; color: var(--muted); white-space: nowrap; }
+  .chart-empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 15px; }
+  .chart-tip {
+    position: absolute; z-index: 2; pointer-events: none; transform: translate(-50%, -100%);
+    background: var(--ink); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 14px; white-space: nowrap; line-height: 1.45;
+  }
+  @media (hover: hover) and (pointer: fine) { .bar-col.go { cursor: var(--cur-hand); } }
+  @media (max-width: 900px) { .bar-x.minor { visibility: hidden; } .stat.main { grid-column: auto; } .period-nav { flex-wrap: wrap; } }
 
   /* ---------- 설정 화면 ---------- */
   .set-wrap { display: grid; gap: 16px; max-width: 920px; }
@@ -414,7 +446,6 @@
  *  기본 유틸
  * ========================================================= */
 const KEY = 'ilhyangru-pos-v1';
-const METHODS = ['카드', '현금', '계좌이체'];
 
 let seq = 0;
 const uid = () => Date.now().toString(36) + (seq++).toString(36) + Math.random().toString(36).slice(2, 6);
@@ -873,6 +904,21 @@ function openItemEditor(kind, id) {
 /* =========================================================
  *  주문 모달 — 메뉴 누르면 추가, +/- 로 수량, [주문 확인]으로 저장
  * ========================================================= */
+// 가게에서 준 메뉴 사진 (img 폴더). 설정에서 직접 올린 사진이 있으면 그게 우선
+const DEFAULT_IMGS = {
+  '짜장면': 'jjajangmyeon', '짬뽕': 'jjamppong', '우동': 'udon', '간짜장': 'ganjjajang',
+  '짬짜면': 'jjamjjamyeon', '볶짜면': 'bokjjamyeon', '해물울면': 'ulmyeon',
+  '해물쟁반짜장(1인)': 'jaengban-jjajang', '해물쟁반짜장(2인)': 'jaengban-jjajang',
+  '볶음밥': 'bokkeumbap', '짜장밥': 'jjajangbap', '짬뽕밥': 'jjamppongbap', '잡채밥': 'japchaebap',
+  '송이덮밥': 'songi-deopbap', '육개장': 'yukgaejang', '내장탕': 'naejangtang',
+  '사과탕수육(소)': 'tangsuyuk', '사과탕수육(중)': 'tangsuyuk', '사과탕수육(대)': 'tangsuyuk',
+  '양장피(소)': 'yangjangpi', '양장피(대)': 'yangjangpi', '잡채': 'japchae',
+  '소주': 'soju', '맥주': 'beer', '고량주(소)': 'goryangju-s', '고량주(대)': 'goryangju-l', '연태고량주': 'yantai',
+  '음료수': 'drink', '냉콩국수': 'kongguksu', '비빔냉면': 'bibim-naengmyeon', '물냉면': 'mul-naengmyeon',
+};
+// x.img: 직접 올린 사진(dataURL) / '' = 사진 지움 / 없음 = 기본 사진
+const imgOf = x => x.img === '' ? null : (x.img || (DEFAULT_IMGS[x.name] ? `img/${DEFAULT_IMGS[x.name]}.jpg` : null));
+
 // 사진 없는 메뉴에 들어가는 빈 그림 칸
 const NO_IMG = `<span class="mimg noimg">
   <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -923,7 +969,7 @@ function openOrder(tableId) {
     const items = state.menu.filter(x => x.cat === cat);
     ref('menu').innerHTML = items.length
       ? items.map(x => `<button class="menu-btn has-img" data-menu="${x.id}">
-          ${x.img ? `<img class="mimg" src="${x.img}" alt="">` : NO_IMG}
+          ${imgOf(x) ? `<img class="mimg" src="${imgOf(x)}" alt="">` : NO_IMG}
           <span class="mtxt"><span class="mn">${esc(x.name)}</span><span class="mp">${won(x.price)}</span></span>
           ${q[x.id] ? `<span class="mq">${q[x.id]}</span>` : ''}
         </button>`).join('')
@@ -1059,7 +1105,6 @@ function openCheckout(tableId) {
   const o = state.orders[tableId];
   if (!table || !o) return;
   const total = sumItems(o.items);
-  let method = METHODS[0];
 
   const m = openModal(`
     <div class="modal-head">
@@ -1073,33 +1118,23 @@ function openCheckout(tableId) {
       </div>`).join('')}
     </div>
     <div class="r-total"><span>결제 금액</span><strong>${won(total)}</strong></div>
-    <div class="methods">${METHODS.map(x =>
-      `<button class="method ${x === method ? 'on' : ''}" data-method="${x}">${x}</button>`).join('')}</div>
     <div class="dlg-actions">
-      <button class="btn ghost" data-act="back">← 주문 수정</button>
-      <button class="btn pay" data-act="done">정산 완료</button>
+      <button class="btn pay done-btn" data-act="done">정산 완료</button>
     </div>`, 'checkout-modal');
 
   m.el.addEventListener('click', e => {
-    const mb = e.target.closest('[data-method]');
-    if (mb) {
-      method = mb.dataset.method;
-      $$('[data-method]', m.el).forEach(b => b.classList.toggle('on', b.dataset.method === method));
-      return;
-    }
     const act = e.target.closest('[data-act]')?.dataset.act;
     if (act === 'close') m.close();
-    if (act === 'back') { m.close(); openOrder(tableId); }
     if (act === 'done') {
       state.sales.push({
         id: uid(), tableId, tableName: table.name, items: clone(o.items),
-        total, method, openedAt: o.openedAt, closedAt: Date.now(),
+        total, openedAt: o.openedAt, closedAt: Date.now(),
       });
       delete state.orders[tableId];
       save();
       renderAll();
       m.close();
-      toast(`${table.name} 정산 완료 · ${won(total)} (${method})`);
+      toast(`${table.name} 정산 완료 · ${won(total)}`);
     }
   });
   m.back.addEventListener('click', e => { if (e.target === m.back) m.close(); });
@@ -1155,84 +1190,262 @@ function openMove(fromId) {
 /* =========================================================
  *  매출 화면
  * ========================================================= */
-let salesDate = todayKey();
-function shiftDate(key, days) {
-  const [y, mo, d] = key.split('-').map(Number);
-  return dateKey(new Date(y, mo - 1, d + days).getTime());
+let salesMode = 'day';          // 'day' 일별 | 'month' 월별 | 'year' 연도별
+let salesDate = todayKey();     // 보고 있는 기간 안의 아무 날짜 (YYYY-MM-DD)
+let showAllMenus = false;
+let chartData = [];             // 막대에 마우스 올렸을 때 보여줄 내용
+const WD = ['일', '월', '화', '수', '목', '금', '토'];
+const MODE_NAME = { day: '일별', month: '월별', year: '연도별' };
+const PREV_NAME = { day: '전날', month: '지난달', year: '작년' };
+const NOW_NAME = { day: '오늘', month: '이번 달', year: '올해' };
+
+const parseKey = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d || 1); };
+const periodPrefix = (key, mode) => mode === 'day' ? key : mode === 'month' ? key.slice(0, 7) : key.slice(0, 4);
+const salesIn = (key, mode) => { const p = periodPrefix(key, mode); return state.sales.filter(s => dateKey(s.closedAt).startsWith(p)); };
+const sumSales = list => list.reduce((a, s) => a + s.total, 0);
+// 그래프 눈금용 짧은 금액: 345,000 → 34.5만
+const shortWon = n => n >= 10000 ? `${Number((n / 10000).toFixed(n < 1000000 && n % 10000 ? 1 : 0))}만` : n.toLocaleString('ko-KR');
+const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+
+function shiftPeriod(key, mode, n) {
+  const d = parseKey(key);
+  if (mode === 'day') d.setDate(d.getDate() + n);
+  if (mode === 'month') { d.setDate(1); d.setMonth(d.getMonth() + n); }
+  if (mode === 'year') { d.setMonth(0, 1); d.setFullYear(d.getFullYear() + n); }
+  return dateKey(d.getTime());
 }
+function periodLabel(key, mode) {
+  const d = parseKey(key);
+  if (mode === 'day') return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 (${WD[d.getDay()]})`;
+  if (mode === 'month') return `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
+  return `${d.getFullYear()}년`;
+}
+function niceMax(v) {
+  if (!v) return 0;
+  const p = Math.pow(10, Math.floor(Math.log10(v)));
+  const f = v / p;
+  return [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find(step => f <= step) * p;
+}
+
+// 그래프 막대 묶음: 일별=시간대, 월별=날짜, 연도별=월
+function salesBuckets(list, mode, key) {
+  if (mode === 'day') {
+    const hrs = list.map(s => new Date(s.closedAt).getHours());
+    return range(Math.min(10, ...hrs), Math.max(21, ...hrs)).map(h => ({
+      label: `${h}시`, tip: `${h}시 ~ ${h + 1}시`,
+      list: list.filter(s => new Date(s.closedAt).getHours() === h),
+    }));
+  }
+  const d = parseKey(key), y = d.getFullYear();
+  if (mode === 'month') {
+    const m = d.getMonth() + 1;
+    return range(1, new Date(y, m, 0).getDate()).map(day => {
+      const k = `${y}-${pad(m)}-${pad(day)}`;
+      return {
+        label: String(day), minor: !(day === 1 || day % 5 === 0),
+        tip: `${m}월 ${day}일 (${WD[new Date(y, m - 1, day).getDay()]})`,
+        go: { mode: 'day', key: k }, list: list.filter(s => dateKey(s.closedAt) === k),
+      };
+    });
+  }
+  return range(1, 12).map(m => {
+    const k = `${y}-${pad(m)}`;
+    return {
+      label: `${m}월`, tip: `${y}년 ${m}월`,
+      go: { mode: 'month', key: `${k}-01` }, list: list.filter(s => dateKey(s.closedAt).startsWith(k)),
+    };
+  });
+}
+
+// 막대 그래프 (매출 한 가지 값 → 색 하나, 가장 높은 막대에만 금액 표시, 나머지는 마우스 올리면)
+function barChart(title, buckets) {
+  const vals = buckets.map(b => sumSales(b.list));
+  const max = Math.max(0, ...vals);
+  const top = niceMax(max);
+  chartData = buckets.map((b, i) => ({ tip: b.tip, total: vals[i], count: b.list.length }));
+  return `<section class="panel chart-panel">
+    <h3>${title}${buckets[0].go ? ' <small>막대를 누르면 자세히 볼 수 있어요</small>' : ''}</h3>
+    <div class="chart">
+      ${top ? [top, top / 2].map(t => `<div class="gl" style="bottom:${t / top * 100}%"><span>${shortWon(t)}</span></div>`).join('') : ''}
+      <div class="bars">${buckets.map((b, i) => {
+        const peak = max && vals[i] === max;
+        return `<div class="bar-col ${b.go ? 'go' : ''}" data-i="${i}" ${b.go ? `data-go-mode="${b.go.mode}" data-go-key="${b.go.key}"` : ''}>
+          <div class="bar-track"><div class="bar" style="height:${top ? vals[i] / top * 100 : 0}%">${peak ? `<span class="bar-val">${shortWon(max)}</span>` : ''}</div></div>
+          <div class="bar-x ${b.minor ? 'minor' : ''}">${b.label}</div>
+        </div>`;
+      }).join('')}</div>
+      ${max ? '' : '<div class="chart-empty">이 기간에 정산된 매출이 없어요</div>'}
+      <div class="chart-tip" hidden></div>
+    </div>
+  </section>`;
+}
+
+const catOf = i => (state.menu.find(m => m.id === i.menuId) || state.menu.find(m => m.name === i.name))?.cat || '기타';
 
 function renderSales() {
   const el = $('#view-sales');
-  const isToday = salesDate === todayKey();
-  const day = state.sales.filter(s => dateKey(s.closedAt) === salesDate).sort((a, b) => b.closedAt - a.closedAt);
-  const total = day.reduce((a, s) => a + s.total, 0);
-  const month = salesDate.slice(0, 7);
-  const monthTotal = state.sales.filter(s => dateKey(s.closedAt).startsWith(month)).reduce((a, s) => a + s.total, 0);
-  const byMethod = Object.fromEntries(METHODS.map(x => [x, 0]));
-  day.forEach(s => { byMethod[s.method] = (byMethod[s.method] || 0) + s.total; });
+  const mode = salesMode, key = salesDate;
+  const list = salesIn(key, mode).sort((a, b) => b.closedAt - a.closedAt);
+  const total = sumSales(list);
+  const teams = list.length;
+  const qty = list.reduce((a, s) => a + s.items.reduce((b, i) => b + i.qty, 0), 0);
+  const days = new Set(list.map(s => dateKey(s.closedAt))).size;
+  const months = new Set(list.map(s => dateKey(s.closedAt).slice(0, 7))).size;
+  const isCurrent = periodPrefix(key, mode) === periodPrefix(todayKey(), mode);
+  const avg = n => won(n ? Math.round(total / n) : 0);
 
+  // 이전 기간과 비교
+  const prevTotal = sumSales(salesIn(shiftPeriod(key, mode, -1), mode));
+  let cmp = `${PREV_NAME[mode]} 매출 없음`;
+  if (prevTotal) {
+    const diff = total - prevTotal;
+    const pct = Math.round(diff / prevTotal * 100);
+    cmp = `${PREV_NAME[mode]}보다 ${diff >= 0 ? '▲' : '▼'} ${won(Math.abs(diff))} (${diff >= 0 ? '+' : ''}${pct}%)`;
+  }
+
+  const openTables = state.tables.filter(t => state.orders[t.id]);
+  const openTotal = openTables.reduce((a, t) => a + sumItems(state.orders[t.id].items), 0);
+  const stats = mode === 'day'
+    ? [['정산 팀 수', `${teams}팀`], ['팀당 평균', avg(teams)], ['판매 수량', `${qty}개`]]
+    : mode === 'month'
+      ? [['정산 팀 수', `${teams}팀`], ['영업일', `${days}일`], ['하루 평균', avg(days)], ['팀당 평균', avg(teams)]]
+      : [['정산 팀 수', `${teams}팀`], ['영업일', `${days}일`], ['한 달 평균', avg(months)], ['하루 평균', avg(days)]];
+  if (mode === 'day' && isCurrent && openTables.length) stats.push(['미정산 (아직 계산 전)', won(openTotal), 'warn']);
+
+  // 메뉴별 판매
   const rank = {};
-  day.forEach(s => s.items.forEach(i => {
+  list.forEach(s => s.items.forEach(i => {
     const r = rank[i.name] || (rank[i.name] = { name: i.name, qty: 0, amount: 0 });
     r.qty += i.qty;
     r.amount += i.qty * i.price;
   }));
   const ranked = Object.values(rank).sort((a, b) => b.qty - a.qty || b.amount - a.amount);
+  const shownMenus = showAllMenus ? ranked : ranked.slice(0, 10);
 
-  const openTables = state.tables.filter(t => state.orders[t.id]);
-  const openTotal = openTables.reduce((a, t) => a + sumItems(state.orders[t.id].items), 0);
+  // 분류별 매출
+  const byCat = {};
+  list.forEach(s => s.items.forEach(i => { const c = catOf(i); byCat[c] = (byCat[c] || 0) + i.qty * i.price; }));
+  const catRows = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+  const catMax = Math.max(1, ...catRows.map(r => r[1]));
+
+  // 기간별 상세: 일별 = 정산 내역, 월별 = 날짜별 표, 연도별 = 월별 표
+  let detail;
+  if (mode === 'day') {
+    detail = `<section class="panel"><h3>정산 내역 <small>${teams}건</small></h3>
+      ${teams ? list.map(s => `<div class="sale-row">
+        <div class="s-top">
+          <span class="s-time">${fmtTime(s.openedAt)}~${fmtTime(s.closedAt)}</span>
+          <b>${esc(s.tableName)}</b>
+          <strong class="s-total">${won(s.total)}</strong>
+          <button class="link-btn" data-undo="${s.id}">정산 취소</button>
+        </div>
+        <div class="s-items">${s.items.map(i => `${esc(i.name)} ${i.qty}`).join(' · ')}</div>
+      </div>`).join('') : '<div class="empty-note">정산 내역이 없어요</div>'}
+    </section>`;
+  } else {
+    const rows = salesBuckets(list, mode, key).filter(b => b.list.length);
+    const head = mode === 'month' ? '<th>날짜</th><th>팀</th><th>매출</th>' : '<th>월</th><th>영업일</th><th>팀</th><th>매출</th>';
+    detail = `<section class="panel"><h3>${mode === 'month' ? '날짜별' : '월별'} 매출 <small>줄을 누르면 자세히 볼 수 있어요</small></h3>
+      ${rows.length ? `<table class="rank go-table">
+        <thead><tr>${head}</tr></thead>
+        <tbody>${rows.map(b => `<tr data-go-mode="${b.go.mode}" data-go-key="${b.go.key}">
+          <td>${b.tip}</td>
+          ${mode === 'year' ? `<td>${new Set(b.list.map(s => dateKey(s.closedAt))).size}일</td>` : ''}
+          <td>${b.list.length}팀</td><td><b>${won(sumSales(b.list))}</b></td></tr>`).join('')}</tbody>
+        <tfoot><tr><td>합계</td>${mode === 'year' ? `<td>${days}일</td>` : ''}<td>${teams}팀</td><td><b>${won(total)}</b></td></tr></tfoot>
+      </table>` : '<div class="empty-note">정산 내역이 없어요</div>'}
+    </section>`;
+  }
 
   el.innerHTML = `
-    <div class="sales-head">
-      <button class="icon-btn" data-day="-1" aria-label="이전 날">‹</button>
-      <input type="date" class="inp date-inp" id="salesDate" value="${salesDate}">
-      <button class="icon-btn" data-day="1" aria-label="다음 날">›</button>
-      ${isToday ? '' : '<button class="btn ghost small" data-day="0">오늘로</button>'}
-    </div>
-    <div class="stat-grid">
-      <div class="stat main"><div class="k">${isToday ? '오늘' : salesDate.slice(5).replace('-', '/')} 매출</div><div class="v">${won(total)}</div></div>
-      <div class="stat"><div class="k">정산 건수</div><div class="v">${day.length}건</div></div>
-      ${METHODS.map(x => `<div class="stat"><div class="k">${x}</div><div class="v">${won(byMethod[x])}</div></div>`).join('')}
-      <div class="stat"><div class="k">${Number(month.slice(5))}월 누계</div><div class="v">${won(monthTotal)}</div></div>
-      ${isToday && openTables.length ? `<div class="stat warn"><div class="k">미정산 (${openTables.length}테이블)</div><div class="v">${won(openTotal)}</div></div>` : ''}
-    </div>
-    <div class="sales-cols">
-      <div class="panel">
-        <h3>정산 내역</h3>
-        ${day.length ? day.map(s => `<div class="sale-row">
-          <div class="s-top">
-            <span class="s-time">${fmtTime(s.closedAt)}</span>
-            <b>${esc(s.tableName)}</b>
-            <span class="tag">${esc(s.method)}</span>
-            <strong class="s-total">${won(s.total)}</strong>
-            <button class="link-btn" data-undo="${s.id}">정산 취소</button>
-          </div>
-          <div class="s-items">${s.items.map(i => `${esc(i.name)} ${i.qty}`).join(' · ')}</div>
-        </div>`).join('') : '<div class="empty-note">정산 내역이 없어요</div>'}
+    <div class="sales-top">
+      <div class="seg-mini big">${['day', 'month', 'year'].map(m =>
+        `<button class="${m === mode ? 'on' : ''}" data-mode="${m}">${MODE_NAME[m]}</button>`).join('')}</div>
+      <div class="period-nav">
+        <button class="icon-btn" data-shift="-1" aria-label="이전">‹</button>
+        <div class="period-label">${periodLabel(key, mode)}</div>
+        <button class="icon-btn" data-shift="1" aria-label="다음" ${isCurrent ? 'disabled' : ''}>›</button>
+        ${mode === 'day' ? `<input type="date" class="inp date-inp" id="salesDay" value="${key}" max="${todayKey()}">` : ''}
+        ${mode === 'month' ? `<input type="month" class="inp date-inp" id="salesMonth" value="${key.slice(0, 7)}" max="${todayKey().slice(0, 7)}">` : ''}
+        ${isCurrent ? '' : `<button class="btn ghost small" data-shift="0">${NOW_NAME[mode]}</button>`}
       </div>
-      <div class="panel">
-        <h3>메뉴별 판매</h3>
-        ${ranked.length ? `<table class="rank">
-          <thead><tr><th>메뉴</th><th>수량</th><th>금액</th></tr></thead>
-          <tbody>${ranked.map(r => `<tr><td>${esc(r.name)}</td><td>${r.qty}</td><td>${won(r.amount)}</td></tr>`).join('')}</tbody>
-        </table>` : '<div class="empty-note">—</div>'}
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat main"><div class="k">${isCurrent ? NOW_NAME[mode] : periodLabel(key, mode)} 매출</div>
+        <div class="v">${won(total)}</div><div class="cmp">${cmp}</div></div>
+      ${stats.map(([k, v, cls]) => `<div class="stat ${cls || ''}"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}
+    </div>
+
+    ${barChart(mode === 'day' ? '시간대별 매출' : mode === 'month' ? '날짜별 매출' : '월별 매출', salesBuckets(list, mode, key))}
+
+    <div class="sales-cols">
+      ${detail}
+      <div class="side-col">
+        <section class="panel"><h3>메뉴별 판매 <small>많이 팔린 순</small></h3>
+          ${ranked.length ? `<table class="rank">
+            <thead><tr><th>순위</th><th>메뉴</th><th>수량</th><th>금액</th></tr></thead>
+            <tbody>${shownMenus.map((r, i) => `<tr><td>${i + 1}</td><td>${esc(r.name)}</td><td>${r.qty}</td><td>${won(r.amount)}</td></tr>`).join('')}</tbody>
+          </table>
+          ${ranked.length > 10 ? `<button class="btn ghost small more-btn" data-more-menus>${showAllMenus ? '접기' : `전체 ${ranked.length}개 보기`}</button>` : ''}`
+          : '<div class="empty-note">—</div>'}
+        </section>
+        <section class="panel"><h3>분류별 매출</h3>
+          ${catRows.length ? catRows.map(([c, v]) => `<div class="cat-row">
+            <span class="cat-name">${esc(c)}</span>
+            <div class="cat-bar"><i style="width:${v / catMax * 100}%"></i></div>
+            <b>${won(v)}</b><small>${total ? Math.round(v / total * 100) : 0}%</small>
+          </div>`).join('') : '<div class="empty-note">—</div>'}
+        </section>
       </div>
     </div>`;
 }
 
 $('#view-sales').addEventListener('click', e => {
-  const d = e.target.closest('[data-day]');
-  if (d) {
-    const n = +d.dataset.day;
-    salesDate = n === 0 ? todayKey() : shiftDate(salesDate, n);
+  const md = e.target.closest('[data-mode]');
+  if (md) { salesMode = md.dataset.mode; showAllMenus = false; renderSales(); return; }
+  const sh = e.target.closest('[data-shift]');
+  if (sh) {
+    const n = +sh.dataset.shift;
+    salesDate = n === 0 ? todayKey() : shiftPeriod(salesDate, salesMode, n);
     renderSales();
     return;
   }
+  const go = e.target.closest('[data-go-mode]');
+  if (go) {
+    salesMode = go.dataset.goMode;
+    salesDate = go.dataset.goKey;
+    showAllMenus = false;
+    renderSales();
+    $('main').scrollTop = 0;
+    return;
+  }
+  if (e.target.closest('[data-more-menus]')) { showAllMenus = !showAllMenus; renderSales(); return; }
   const u = e.target.closest('[data-undo]');
   if (u) undoSale(u.dataset.undo);
 });
 $('#view-sales').addEventListener('change', e => {
-  if (e.target.id === 'salesDate' && e.target.value) { salesDate = e.target.value; renderSales(); }
+  if (e.target.id === 'salesDay' && e.target.value) { salesDate = e.target.value; renderSales(); }
+  if (e.target.id === 'salesMonth' && e.target.value) { salesDate = `${e.target.value}-01`; renderSales(); }
+});
+// 막대에 마우스 올리면 금액 표시
+$('#view-sales').addEventListener('mousemove', e => {
+  const tip = $('#view-sales .chart-tip');
+  if (!tip) return;
+  const col = e.target.closest('.bar-col');
+  if (!col) { tip.hidden = true; return; }
+  const d = chartData[+col.dataset.i];
+  const chart = col.closest('.chart').getBoundingClientRect();
+  const r = col.getBoundingClientRect();
+  const barTop = col.querySelector('.bar').getBoundingClientRect().top;
+  tip.innerHTML = `<b>${d.tip}</b><br>${d.total ? `${won(d.total)} · ${d.count}팀` : '매출 없음'}`;
+  tip.style.left = `${clamp(r.left + r.width / 2 - chart.left, 70, chart.width - 70)}px`;
+  tip.style.top = `${Math.max(36, barTop - chart.top - 10)}px`;
+  tip.hidden = false;
+});
+$('#view-sales').addEventListener('mouseleave', () => {
+  const tip = $('#view-sales .chart-tip');
+  if (tip) tip.hidden = true;
 });
 
 async function undoSale(id) {
@@ -1242,7 +1455,7 @@ async function undoSale(id) {
   const canRestore = t && !state.orders[t.id];
   const choice = await ask({
     title: '정산 취소',
-    message: `${fmtTime(s.closedAt)} ${s.tableName} · ${won(s.total)} (${s.method})\n`
+    message: `${fmtTime(s.closedAt)} ${s.tableName} · ${won(s.total)}\n`
       + (canRestore ? '주문을 테이블로 되돌리거나, 기록만 삭제할 수 있어요.' : '해당 테이블이 사용중이라 기록 삭제만 할 수 있어요.'),
     buttons: [
       { label: '닫기', value: null },
@@ -1275,8 +1488,8 @@ function renderSettings() {
             <button class="icon-btn del" data-cat-del="${ci}" title="분류 삭제">✕</button>
           </div>
           ${items.map((x, mi) => `<div class="set-row menu-row">
-            <button class="thumb ${x.img ? 'on' : ''}" data-mimg="${x.id}" title="사진">
-              ${x.img ? `<img src="${x.img}" alt="">` : '📷<br>사진'}</button>
+            <button class="thumb ${imgOf(x) ? 'on' : ''}" data-mimg="${x.id}" title="사진">
+              ${imgOf(x) ? `<img src="${imgOf(x)}" alt="">` : '📷<br>사진'}</button>
             <input class="inp name" data-mname="${x.id}" value="${esc(x.name)}" maxlength="20">
             <input class="inp price" data-mprice="${x.id}" type="number" inputmode="numeric" min="0" step="500" value="${x.price}">
             <select class="inp sel" data-mcat="${x.id}">${state.categories.map(k =>
@@ -1400,7 +1613,7 @@ $('#view-settings').addEventListener('click', async e => {
   } else if (d.mimg) {
     const x = menuById(d.mimg);
     imgTargetId = x.id;
-    if (!x.img) return $('#menuImgFile').click();
+    if (!imgOf(x)) return $('#menuImgFile').click();
     const r = await ask({
       title: `${x.name} 사진`,
       buttons: [
@@ -1410,7 +1623,7 @@ $('#view-settings').addEventListener('click', async e => {
       ],
     });
     if (r === 'change') $('#menuImgFile').click();
-    if (r === 'del') { delete x.img; save(); renderSettings(); }
+    if (r === 'del') { x.img = ''; save(); renderSettings(); }
   } else if (d.mup) {
     const i = state.menu.findIndex(x => x.id === d.mup);
     const cat = state.menu[i].cat;
