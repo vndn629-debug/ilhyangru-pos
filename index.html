@@ -338,6 +338,64 @@
   @media (hover: hover) and (pointer: fine) { .bar-col.go { cursor: var(--cur-hand); } }
   @media (max-width: 900px) { .bar-x.minor { visibility: hidden; } .stat.main { grid-column: auto; } .period-nav { flex-wrap: wrap; } }
 
+
+  /* ---------- 위쪽 알림 / 자동 백업 / 마감 ---------- */
+  .notice { flex-shrink: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 9px 16px; background: #fff1d6; color: #5c3a00; border-bottom: 1px solid #f0d9a8; font-size: 16px; font-weight: 600; }
+  .notice[hidden] { display: none; }
+  .notice.err { background: #fbeae8; color: #7a1a14; border-bottom-color: #efc4c0; }
+  .notice .n-msg { flex: 1; min-width: 220px; }
+  .notice .btn.small { min-height: 38px; padding: 6px 14px; background: #fff; border-color: rgba(0,0,0,.18); }
+  .notice .btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .close-btn { height: 36px; padding: 0 14px; border-radius: 9px; background: rgba(255,255,255,.95); color: var(--primary); font-weight: 800; font-size: 15px; }
+
+  .bk-state { font-size: 14px !important; font-weight: 700 !important; }
+  .bk-state.on { color: var(--pay); } .bk-state.off, .bk-state.warn { color: var(--warn); } .bk-state.bad { color: var(--primary); }
+  .bk-rows { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-bottom: 14px; }
+  .bk-rows > div { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; }
+  .bk-rows span { display: block; font-size: 12px; color: var(--muted); }
+  .bk-rows b { font-size: 16px; }
+
+  .close-body { padding: 16px 20px 4px; overflow-y: auto; display: grid; gap: 12px; }
+  .close-sum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .close-sum > div { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .close-sum span { display: block; font-size: 13px; color: var(--muted); }
+  .close-sum b { font-size: 20px; font-variant-numeric: tabular-nums; }
+  .warn-box { background: #fff1d6; border: 1px solid #f0d9a8; border-radius: 10px; padding: 10px 12px; color: #5c3a00; display: grid; gap: 6px; }
+  .open-row { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; background: #fff; border: 1px solid #f0d9a8; border-radius: 8px; padding: 9px 12px; text-align: left; font-size: 17px; font-weight: 700; }
+  .open-row i { font-style: normal; color: var(--primary); font-size: 14px; }
+  .ok-box { background: var(--pay-soft); color: var(--pay); border-radius: 10px; padding: 10px 12px; font-weight: 700; }
+  .close-top, .close-bk { font-size: 15px; color: var(--muted); }
+  .close-top span { font-weight: 700; color: var(--ink); margin-right: 6px; }
+
+
+  /* ---------- 로그인 / 클라우드 상태 ---------- */
+  body.gated > header, body.gated > main, body.gated > .notice { visibility: hidden; }
+  .gate { position: fixed; inset: 0; z-index: 300; background: var(--bg); display: grid; place-items: center; padding: 16px; }
+  .gate[hidden] { display: none; }
+  .gate-card { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 28px 24px; box-shadow: var(--shadow); text-align: center; }
+  .gate-brand { font-size: 30px; font-weight: 800; color: var(--primary); }
+  .gate-msg { margin: 8px 0 18px; font-size: 17px; color: var(--ink); line-height: 1.5; }
+  .gate-spin { width: 34px; height: 34px; margin: 6px auto; border: 4px solid var(--line); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .gate-spin[hidden] { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .gate form { display: grid; gap: 10px; text-align: left; }
+  .gate form[hidden] { display: none; }
+  .gate label { font-size: 14px; color: var(--muted); display: grid; gap: 4px; }
+  .gate .pw-row { display: flex; gap: 6px; }
+  .gate .pw-row .inp { flex: 1; }
+  .gate-err { color: var(--primary); font-size: 14px; min-height: 18px; }
+  .gate .btn { width: 100%; }
+  .gate .pw-row .btn { width: auto; flex: none; }
+  .gate .btn[hidden] { display: none; }
+  .gate-actions { display: grid; gap: 8px; margin-top: 4px; }
+  .cloud-chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; background: rgba(0,0,0,.2); color: #fff; font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .cloud-chip i { width: 9px; height: 9px; border-radius: 50%; background: #9e9e9e; }
+  .cloud-chip.online i { background: #5fd38a; }
+  .cloud-chip.saving i { background: #ffd54f; }
+  .cloud-chip.offline { background: #fff1d6; color: #5c3a00; }
+  .cloud-chip.offline i { background: var(--warn); }
+  @media (max-width: 760px) { .cloud-chip span { display: none; } .cloud-chip { padding: 0 10px; } }
+
   /* ---------- 설정 화면 ---------- */
   .set-wrap { display: grid; gap: 16px; max-width: 920px; }
   .set-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
@@ -375,6 +433,11 @@
   @media (max-width: 900px) {
     .sales-cols { grid-template-columns: 1fr; }
   }
+  @media (max-width: 1100px) {
+    .table-toolbar { order: 4; width: 100%; flex: none; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; }
+    .table-summary, .tb-tools { flex-wrap: nowrap; flex-shrink: 0; }
+    .table-summary .pill { white-space: nowrap; }
+  }
   @media (max-width: 760px) {
     .topbar { gap: 10px; }
     .top-right { order: 2; }
@@ -384,7 +447,6 @@
     /* 휴대폰: 배치도는 원래 크기로 두고 손가락으로 밀어서 보기 */
     #tableArea.floor-area { container-type: normal; overflow: auto; display: block; }
     .floor { width: 760px; height: 428px; }
-    .table-toolbar { order: 4; width: 100%; flex: none; justify-content: flex-start; }
     .backdrop { padding: 0; }
     .modal.order-modal { border-radius: 0; }
     .order-body { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
@@ -398,7 +460,7 @@
     .modal.dialog { margin: 16px; }
     .menu-row {
       display: grid; gap: 6px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--line);
-      grid-template-columns: 64px 1fr 1fr 42px 42px;
+      grid-template-columns: 64px 1.3fr 1fr 42px 42px;
       grid-template-areas: "t n n n n" "t p c u d";
     }
     .menu-row .thumb { grid-area: t; width: 64px; height: 100%; }
@@ -410,7 +472,7 @@
   }
 </style>
 </head>
-<body>
+<body class="gated">
 <header class="topbar">
   <div class="brand" id="brandName">일향루</div>
   <nav class="tabs">
@@ -423,11 +485,14 @@
     <div class="tb-tools" id="tableTools"></div>
   </div>
   <div class="top-right">
+    <button class="cloud-chip" id="cloudChip" title="연결 상태"></button>
     <span id="todayTotal"></span>
     <span id="clock"></span>
+    <button class="close-btn" id="closeDayBtn" title="오늘 마감">마감</button>
     <button class="fs-btn" id="fsBtn" title="전체화면">⛶</button>
   </div>
 </header>
+<div class="notice" id="notice" hidden></div>
 
 <main>
   <section id="view-tables" class="view active">
@@ -438,6 +503,24 @@
 </main>
 
 <div id="toast"></div>
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-brand" id="gateBrand">일향루</div>
+    <p class="gate-msg" id="gateMsg">불러오는 중…</p>
+    <div class="gate-spin" id="gateSpin"></div>
+    <form id="gateForm" hidden>
+      <label>가게 이메일<input class="inp" id="gEmail" type="email" autocomplete="username" inputmode="email"></label>
+      <label>비밀번호<div class="pw-row"><input class="inp" id="gPw" type="password" autocomplete="current-password"><button type="button" class="btn ghost small" id="gShow">보기</button></div></label>
+      <div class="gate-err" id="gateErr"></div>
+      <button type="submit" class="btn primary">로그인</button>
+    </form>
+    <div class="gate-actions">
+      <button class="btn primary" id="gateRetry" hidden>다시 시도</button>
+      <button class="btn ghost" id="gateLogout" hidden>로그아웃</button>
+    </div>
+  </div>
+</div>
 
 <script>
 'use strict';
@@ -473,6 +556,17 @@ function sameItems(a, b) {
   const x = qtyMap(a), y = qtyMap(b);
   for (const k of new Set([...Object.keys(x), ...Object.keys(y)])) if (x[k] !== y[k]) return false;
   return true;
+}
+function mergeEdit(base, draft, latest) {
+  const b = qtyMap(base), d = qtyMap(draft), out = clone(latest);
+  new Set([...Object.keys(b), ...Object.keys(d)]).forEach(k => {
+    const delta = (d[k] || 0) - (b[k] || 0);
+    if (!delta) return;
+    const line = out.find(x => lineKey(x) === k);
+    if (line) line.qty += delta;
+    else if (delta > 0) out.push({ ...draft.find(x => lineKey(x) === k), qty: delta });
+  });
+  return out.filter(x => x.qty > 0);
 }
 function mergeItems(a, b) {
   const out = clone(a);
@@ -519,7 +613,8 @@ function defaultState() {
     layoutVer: LAYOUT_VER,
     tableView: 'floor',   // 'floor' 배치도 | 'grid' 목록
     orders: {},   // { [tableId]: { items:[{menuId,name,price,qty}], openedAt, updatedAt } }
-    sales: [],    // [{ id, tableId, tableName, items, total, method, openedAt, closedAt }]
+    sales: [],    // 정산 기록 (클라우드 연결 시엔 오늘 + 열어본 날짜만 들어 있음)
+    daily: {},    // 날짜별 매출 요약 { 'YYYY-MM-DD': { total, count, qty, menus, cats } } (클라우드)
   };
 }
 // 예전 기본 메뉴(임시 가격)를 실제 메뉴판으로 한 번 교체. 주문·매출 기록은 그대로, 사진은 같은 이름 메뉴에 유지
@@ -598,7 +693,8 @@ function fromSaved(saved) {
 }
 let state = load();
 function save() {
-  try { localStorage.setItem(KEY, JSON.stringify(state)); return true; }
+  if (cloud.ready) { pushState(); scheduleBackup(); return true; }   // 클라우드: 바뀐 것만 올림 (모든 기기에 반영)
+  try { localStorage.setItem(KEY, JSON.stringify(state)); scheduleBackup(); return true; }
   catch (e) { toast('⚠ 저장 실패 — 저장 공간이 부족해요 (사진 수를 줄여보세요)'); return false; }
 }
 
@@ -686,7 +782,8 @@ function renderHeader() {
   $('#brandName').textContent = state.storeName || 'POS';
   document.title = `${state.storeName || ''} POS`;
   const today = todayKey();
-  const total = state.sales.filter(s => dateKey(s.closedAt) === today).reduce((a, s) => a + s.total, 0);
+  const total = cloud.ready ? (state.daily?.[today]?.total || 0)
+    : state.sales.filter(s => dateKey(s.closedAt) === today).reduce((a, s) => a + s.total, 0);
   $('#todayTotal').innerHTML = `오늘 <b>${won(total)}</b>`;
 }
 function tick() {
@@ -794,7 +891,7 @@ $('#view-tables').addEventListener('click', e => {
 $('#tableTools').addEventListener('click', e => {
   const tool = e.target.closest('[data-tool]')?.dataset.tool;
   if (!tool) return;
-  if (tool === 'floor' || tool === 'grid') { state.tableView = tool; save(); }
+  if (tool === 'floor' || tool === 'grid') { state.tableView = meta.tableView = tool; saveMeta(); }   // 기기마다 따로
   if (tool === 'edit') editingLayout = true;
   if (tool === 'done') { editingLayout = false; save(); toast('배치를 저장했어요'); }
   if (tool === 'addTable') {
@@ -929,7 +1026,8 @@ function openOrder(tableId) {
   const table = tableById(tableId);
   if (!table) return;
   const committed = () => state.orders[tableId];
-  let draft = committed() ? clone(committed().items) : [];
+  let baseItems = committed() ? clone(committed().items) : [];   // 창을 열 때의 주문 (다른 기기 변경과 합칠 때 기준)
+  let draft = clone(baseItems);
   let cat = state.categories[0];
 
   const m = openModal(`
@@ -957,7 +1055,7 @@ function openOrder(tableId) {
     </div>`, 'order-modal');
 
   const ref = n => $(`[data-ref="${n}"]`, m.el);
-  const dirty = () => !sameItems(draft, committed()?.items || []);
+  const dirty = () => !sameItems(draft, baseItems);
 
   function renderCats() {
     ref('cats').innerHTML = state.categories.map(c =>
@@ -976,7 +1074,7 @@ function openOrder(tableId) {
       : `<div class="cart-empty">이 분류에 메뉴가 없어요.<br>설정 탭에서 추가하세요.</div>`;
   }
   function renderCart() {
-    const base = qtyMap(committed()?.items || []);
+    const base = qtyMap(baseItems);
     ref('cart').innerHTML = draft.length
       ? draft.map((it, idx) => {
           const diff = it.qty - (base[lineKey(it)] || 0);
@@ -1018,8 +1116,13 @@ function openOrder(tableId) {
 
   function commit() {
     const now = Date.now();
-    if (!draft.length) delete state.orders[tableId];
-    else state.orders[tableId] = { items: clone(draft), openedAt: committed()?.openedAt || now, updatedAt: now };
+    const latest = committed()?.items || [];
+    // 창을 연 사이 다른 기기가 이 테이블에 주문을 넣었으면, 내가 바꾼 만큼만 더하고 빼서 합침
+    const items = sameItems(latest, baseItems) ? clone(draft) : mergeEdit(baseItems, draft, latest);
+    if (!items.length) delete state.orders[tableId];
+    else state.orders[tableId] = { items, openedAt: committed()?.openedAt || now, updatedAt: now };
+    baseItems = clone(items);
+    draft = clone(items);
     save();
     renderAll();
   }
@@ -1126,11 +1229,14 @@ function openCheckout(tableId) {
     const act = e.target.closest('[data-act]')?.dataset.act;
     if (act === 'close') m.close();
     if (act === 'done') {
-      state.sales.push({
-        id: uid(), tableId, tableName: table.name, items: clone(o.items),
-        total, openedAt: o.openedAt, closedAt: Date.now(),
-      });
+      const closedAt = Date.now();
+      const sale = {
+        id: uid(), day: dateKey(closedAt), tableId, tableName: table.name,
+        items: o.items.map(i => ({ ...i, cat: catOf(i) })), total, openedAt: o.openedAt, closedAt,
+      };
+      state.sales.push(sale);
       delete state.orders[tableId];
+      if (cloud.ready) cloudCheckout(sale, tableId);
       save();
       renderAll();
       m.close();
@@ -1227,42 +1333,52 @@ function niceMax(v) {
   return [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find(step => f <= step) * p;
 }
 
-// 그래프 막대 묶음: 일별=시간대, 월별=날짜, 연도별=월
+// 날짜별 요약(state.daily)에서 기간 합계 내기: 월별·연도별은 정산 하나하나를 안 불러와도 됨
+function aggOf(key, mode) {
+  const p = periodPrefix(key, mode);
+  const out = { total: 0, count: 0, qty: 0, menus: {}, cats: {}, days: 0, months: new Set() };
+  Object.entries(state.daily || {}).forEach(([k, d]) => {
+    if (!k.startsWith(p) || !d.count) return;
+    out.total += d.total; out.count += d.count; out.qty += d.qty; out.days++; out.months.add(k.slice(0, 7));
+    Object.entries(d.menus || {}).forEach(([n, v]) => { const m = out.menus[n] ||= { q: 0, a: 0 }; m.q += v.q; m.a += v.a; });
+    Object.entries(d.cats || {}).forEach(([c, v]) => { out.cats[c] = (out.cats[c] || 0) + v; });
+  });
+  return out;
+}
+
+// 그래프 막대 묶음: 일별=시간대(그날 정산 내역), 월별=날짜, 연도별=월(날짜별 요약)
 function salesBuckets(list, mode, key) {
   if (mode === 'day') {
     const hrs = list.map(s => new Date(s.closedAt).getHours());
-    return range(Math.min(10, ...hrs), Math.max(21, ...hrs)).map(h => ({
-      label: `${h}시`, tip: `${h}시 ~ ${h + 1}시`,
-      list: list.filter(s => new Date(s.closedAt).getHours() === h),
-    }));
+    return range(Math.min(10, ...hrs), Math.max(21, ...hrs)).map(h => {
+      const l = list.filter(s => new Date(s.closedAt).getHours() === h);
+      return { label: `${h}시`, tip: `${h}시 ~ ${h + 1}시`, total: sumSales(l), count: l.length };
+    });
   }
   const d = parseKey(key), y = d.getFullYear();
   if (mode === 'month') {
     const m = d.getMonth() + 1;
     return range(1, new Date(y, m, 0).getDate()).map(day => {
-      const k = `${y}-${pad(m)}-${pad(day)}`;
+      const k = `${y}-${pad(m)}-${pad(day)}`, x = state.daily?.[k];
       return {
         label: String(day), minor: !(day === 1 || day % 5 === 0),
         tip: `${m}월 ${day}일 (${WD[new Date(y, m - 1, day).getDay()]})`,
-        go: { mode: 'day', key: k }, list: list.filter(s => dateKey(s.closedAt) === k),
+        go: { mode: 'day', key: k }, total: x?.total || 0, count: x?.count || 0,
       };
     });
   }
   return range(1, 12).map(m => {
-    const k = `${y}-${pad(m)}`;
-    return {
-      label: `${m}월`, tip: `${y}년 ${m}월`,
-      go: { mode: 'month', key: `${k}-01` }, list: list.filter(s => dateKey(s.closedAt).startsWith(k)),
-    };
+    const a = aggOf(`${y}-${pad(m)}-01`, 'month');
+    return { label: `${m}월`, tip: `${y}년 ${m}월`, go: { mode: 'month', key: `${y}-${pad(m)}-01` }, total: a.total, count: a.count, days: a.days };
   });
 }
 
 // 막대 그래프 (매출 한 가지 값 → 색 하나, 가장 높은 막대에만 금액 표시, 나머지는 마우스 올리면)
-function barChart(title, buckets) {
-  const vals = buckets.map(b => sumSales(b.list));
+function barChart(title, buckets, loading) {
+  const vals = buckets.map(b => b.total);
   const max = Math.max(0, ...vals);
   const top = niceMax(max);
-  chartData = buckets.map((b, i) => ({ tip: b.tip, total: vals[i], count: b.list.length }));
+  chartData = buckets.map((b, i) => ({ tip: b.tip, total: vals[i], count: b.count }));
   return `<section class="panel chart-panel">
     <h3>${title}${buckets[0].go ? ' <small>막대를 누르면 자세히 볼 수 있어요</small>' : ''}</h3>
     <div class="chart">
@@ -1274,28 +1390,27 @@ function barChart(title, buckets) {
           <div class="bar-x ${b.minor ? 'minor' : ''}">${b.label}</div>
         </div>`;
       }).join('')}</div>
-      ${max ? '' : '<div class="chart-empty">이 기간에 정산된 매출이 없어요</div>'}
+      ${max ? '' : `<div class="chart-empty">${loading ? '불러오는 중…' : '이 기간에 정산된 매출이 없어요'}</div>`}
       <div class="chart-tip" hidden></div>
     </div>
   </section>`;
 }
 
-const catOf = i => (state.menu.find(m => m.id === i.menuId) || state.menu.find(m => m.name === i.name))?.cat || '기타';
+const catOf = i => i.cat || (state.menu.find(m => m.id === i.menuId) || state.menu.find(m => m.name === i.name))?.cat || '기타';
 
 function renderSales() {
   const el = $('#view-sales');
   const mode = salesMode, key = salesDate;
-  const list = salesIn(key, mode).sort((a, b) => b.closedAt - a.closedAt);
-  const total = sumSales(list);
-  const teams = list.length;
-  const qty = list.reduce((a, s) => a + s.items.reduce((b, i) => b + i.qty, 0), 0);
-  const days = new Set(list.map(s => dateKey(s.closedAt))).size;
-  const months = new Set(list.map(s => dateKey(s.closedAt).slice(0, 7))).size;
+  if (mode === 'day' && !dayLoaded(key)) ensureSalesDay(key);
+  const loading = mode === 'day' && !dayLoaded(key);
+  const list = mode === 'day' ? salesIn(key, mode).sort((a, b) => b.closedAt - a.closedAt) : [];
+  const agg = aggOf(key, mode);
+  const total = agg.total, teams = agg.count, qty = agg.qty, days = agg.days, months = agg.months.size;
   const isCurrent = periodPrefix(key, mode) === periodPrefix(todayKey(), mode);
   const avg = n => won(n ? Math.round(total / n) : 0);
 
   // 이전 기간과 비교
-  const prevTotal = sumSales(salesIn(shiftPeriod(key, mode, -1), mode));
+  const prevTotal = aggOf(shiftPeriod(key, mode, -1), mode).total;
   let cmp = `${PREV_NAME[mode]} 매출 없음`;
   if (prevTotal) {
     const diff = total - prevTotal;
@@ -1312,27 +1427,18 @@ function renderSales() {
       : [['정산 팀 수', `${teams}팀`], ['영업일', `${days}일`], ['한 달 평균', avg(months)], ['하루 평균', avg(days)]];
   if (mode === 'day' && isCurrent && openTables.length) stats.push(['미정산 (아직 계산 전)', won(openTotal), 'warn']);
 
-  // 메뉴별 판매
-  const rank = {};
-  list.forEach(s => s.items.forEach(i => {
-    const r = rank[i.name] || (rank[i.name] = { name: i.name, qty: 0, amount: 0 });
-    r.qty += i.qty;
-    r.amount += i.qty * i.price;
-  }));
-  const ranked = Object.values(rank).sort((a, b) => b.qty - a.qty || b.amount - a.amount);
+  // 메뉴별 판매 / 분류별 매출
+  const ranked = Object.entries(agg.menus).map(([name, v]) => ({ name, qty: v.q, amount: v.a }))
+    .filter(r => r.qty > 0).sort((a, b) => b.qty - a.qty || b.amount - a.amount);
   const shownMenus = showAllMenus ? ranked : ranked.slice(0, 10);
-
-  // 분류별 매출
-  const byCat = {};
-  list.forEach(s => s.items.forEach(i => { const c = catOf(i); byCat[c] = (byCat[c] || 0) + i.qty * i.price; }));
-  const catRows = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+  const catRows = Object.entries(agg.cats).filter(r => r[1] > 0).sort((a, b) => b[1] - a[1]);
   const catMax = Math.max(1, ...catRows.map(r => r[1]));
 
   // 기간별 상세: 일별 = 정산 내역, 월별 = 날짜별 표, 연도별 = 월별 표
   let detail;
   if (mode === 'day') {
     detail = `<section class="panel"><h3>정산 내역 <small>${teams}건</small></h3>
-      ${teams ? list.map(s => `<div class="sale-row">
+      ${loading ? '<div class="empty-note">불러오는 중…</div>' : list.length ? list.map(s => `<div class="sale-row">
         <div class="s-top">
           <span class="s-time">${fmtTime(s.openedAt)}~${fmtTime(s.closedAt)}</span>
           <b>${esc(s.tableName)}</b>
@@ -1343,15 +1449,15 @@ function renderSales() {
       </div>`).join('') : '<div class="empty-note">정산 내역이 없어요</div>'}
     </section>`;
   } else {
-    const rows = salesBuckets(list, mode, key).filter(b => b.list.length);
+    const rows = salesBuckets(list, mode, key).filter(b => b.count);
     const head = mode === 'month' ? '<th>날짜</th><th>팀</th><th>매출</th>' : '<th>월</th><th>영업일</th><th>팀</th><th>매출</th>';
     detail = `<section class="panel"><h3>${mode === 'month' ? '날짜별' : '월별'} 매출 <small>줄을 누르면 자세히 볼 수 있어요</small></h3>
       ${rows.length ? `<table class="rank go-table">
         <thead><tr>${head}</tr></thead>
         <tbody>${rows.map(b => `<tr data-go-mode="${b.go.mode}" data-go-key="${b.go.key}">
           <td>${b.tip}</td>
-          ${mode === 'year' ? `<td>${new Set(b.list.map(s => dateKey(s.closedAt))).size}일</td>` : ''}
-          <td>${b.list.length}팀</td><td><b>${won(sumSales(b.list))}</b></td></tr>`).join('')}</tbody>
+          ${mode === 'year' ? `<td>${b.days}일</td>` : ''}
+          <td>${b.count}팀</td><td><b>${won(b.total)}</b></td></tr>`).join('')}</tbody>
         <tfoot><tr><td>합계</td>${mode === 'year' ? `<td>${days}일</td>` : ''}<td>${teams}팀</td><td><b>${won(total)}</b></td></tr></tfoot>
       </table>` : '<div class="empty-note">정산 내역이 없어요</div>'}
     </section>`;
@@ -1377,7 +1483,7 @@ function renderSales() {
       ${stats.map(([k, v, cls]) => `<div class="stat ${cls || ''}"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}
     </div>
 
-    ${barChart(mode === 'day' ? '시간대별 매출' : mode === 'month' ? '날짜별 매출' : '월별 매출', salesBuckets(list, mode, key))}
+    ${barChart(mode === 'day' ? '시간대별 매출' : mode === 'month' ? '날짜별 매출' : '월별 매출', salesBuckets(list, mode, key), loading)}
 
     <div class="sales-cols">
       ${detail}
@@ -1466,6 +1572,10 @@ async function undoSale(id) {
   if (!choice) return;
   if (choice === 'restore') state.orders[t.id] = { items: clone(s.items), openedAt: s.openedAt, updatedAt: Date.now() };
   state.sales = state.sales.filter(x => x.id !== id);
+  if (cloud.ready) {
+    cloudUndoSale(s, choice === 'restore' ? { tableId: t.id, order: state.orders[t.id] } : null);
+    if (histSales) histSales = histSales.filter(x => x.id !== id);
+  }
   save();
   renderAll();
   toast(choice === 'restore' ? `${t.name} 테이블로 되돌렸어요` : '정산 기록을 삭제했어요');
@@ -1520,6 +1630,10 @@ function renderSettings() {
       <input class="inp" data-set="storeName" value="${esc(state.storeName)}" maxlength="20">
     </section>
 
+    ${cloudCard()}
+
+    ${backupCard()}
+
     <section class="set-card">
       <h3>데이터</h3>
       <div class="data-actions">
@@ -1529,7 +1643,7 @@ function renderSettings() {
         <button class="btn danger" data-act="resetAll">전체 초기화</button>
       </div>
       <input type="file" id="importFile" accept="application/json,.json" hidden>
-      <p class="hint">데이터는 이 기기 브라우저 안에 저장돼요. 브라우저의 방문 기록·사이트 데이터를 지우면 사라지니, 가끔 백업 파일을 저장해 두세요.</p>
+      <p class="hint">데이터는 클라우드(Firebase)에 저장되고, 같은 가게 계정으로 로그인한 모든 기기가 함께 써요. 백업 파일은 만일을 위한 보관용이에요.</p>
     </section>
   </div>`;
 }
@@ -1653,23 +1767,63 @@ $('#view-settings').addEventListener('click', async e => {
     state.categories.splice(i, 1);
     state.menu = state.menu.filter(x => x.cat !== c);
     save(); renderSettings();
+  } else if (d.act === 'cloudLogout') {
+    signOutCloud();
+  } else if (d.act === 'pickBackup') {
+    pickBackupFolder();
+  } else if (d.act === 'allowBackup') {
+    allowBackupFolder();
+  } else if (d.act === 'backupNow') {
+    toast((await runBackup()) ? '백업을 저장했어요' : '백업에 실패했어요');
   } else if (d.act === 'export') {
     exportBackup();
   } else if (d.act === 'import') {
     $('#importFile').click();
   } else if (d.act === 'resetSales') {
     if (!await confirmBox('매출 기록 삭제', '모든 정산 기록을 삭제할까요? 되돌릴 수 없어요.\n먼저 백업 파일을 저장해 두는 걸 권해요.', '모두 삭제', 'danger')) return;
-    state.sales = [];
+    if (cloud.ready) {
+      gate('매출 기록을 지우는 중…');
+      try {
+        const { F } = cloud.fb;
+        for (const n of ['sales', 'days']) { const snap = await F.getDocs(colRef(n)); await commitOps(snap.docs.map(x => ['delete', x.ref])); }
+      } catch (e) { onWriteError(e); }
+      histSales = null; cloud.loadedDays = new Set();
+      ungate();
+    }
+    state.sales = []; state.daily = {};
     save(); renderAll(); toast('매출 기록을 삭제했어요');
   } else if (d.act === 'resetAll') {
-    if (!await confirmBox('전체 초기화', '메뉴, 테이블, 주문, 매출을 모두 처음 상태로 되돌려요. 되돌릴 수 없어요.', '초기화', 'danger')) return;
+    if (!await confirmBox('전체 초기화', '메뉴, 테이블, 주문, 매출을 모두 처음 상태로 되돌려요. 되돌릴 수 없어요.'
+      + (cloud.ready ? '\n모든 기기(아이패드 포함)가 함께 초기화돼요.' : ''), '초기화', 'danger')) return;
+    if (cloud.ready) return replaceCloud(defaultState(), 'default', '초기화했어요');
     state = defaultState();
     save(); renderAll(); renderSettings(); toast('초기화했어요');
   }
 });
 
-function exportBackup() {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+// 백업 파일 내용: 클라우드면 지난 정산은 하루 한 번만 서버에서 모아 오고(읽기 횟수 절약), 오늘 것은 실시간 데이터 사용
+var histSales = null, histDay = '';
+async function backupSnapshot() {
+  const snap = { ...state };
+  delete snap.daily;
+  if (!cloud.ready) return snap;
+  const today = todayKey();
+  if (!histSales || histDay !== today) {
+    try {
+      const { F } = cloud.fb;
+      const r = await F.getDocs(F.query(colRef('sales'), F.where('day', '<', today)));
+      if (r.metadata.fromCache && !navigator.onLine) throw new Error('offline');
+      histSales = r.docs.map(d => ({ id: d.id, ...d.data() }));
+      histDay = today;
+    } catch (e) { const err = new Error('인터넷 연결 필요'); err.name = 'CloudOffline'; throw err; }
+  }
+  snap.sales = histSales.concat(state.sales.filter(x => dateKey(x.closedAt) === today));
+  return snap;
+}
+async function exportBackup() {
+  let data;
+  try { data = await backupSnapshot(); } catch { return toast('인터넷에 연결된 뒤에 백업 파일을 저장할 수 있어요'); }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `pos-backup-${todayKey()}.json`;
@@ -1677,6 +1831,9 @@ function exportBackup() {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  Object.assign(meta, { lastBackupAt: Date.now(), lastBackupFile: a.download });
+  saveMeta();
+  renderNotice();
 }
 async function importBackup(file) {
   if (!file) return;
@@ -1687,21 +1844,757 @@ async function importBackup(file) {
   } catch {
     return toast('올바른 백업 파일이 아니에요');
   }
-  if (!await confirmBox('백업 불러오기', '지금 데이터(주문·메뉴·매출)를 백업 파일 내용으로 바꿀까요?', '불러오기', 'danger')) return;
+  if (!await confirmBox('백업 불러오기', '지금 데이터(주문·메뉴·매출)를 백업 파일 내용으로 바꿀까요?'
+    + (cloud.ready ? '\n같은 계정으로 쓰는 모든 기기(아이패드 포함)의 데이터가 함께 바뀌어요.' : ''), '불러오기', 'danger')) return;
+  if (cloud.ready) return replaceCloud(fromSaved(s), 'local', '백업을 불러왔어요');
   state = fromSaved(s);
   save(); renderAll(); renderSettings(); toast('백업을 불러왔어요');
 }
 
 /* =========================================================
- *  시작
+ *  자동 백업 / 마감 / 저장 공간 관리
+ *  - 사용자가 고른 폴더(USB, 구글 드라이브 폴더 등)에 날짜별 백업 파일을 자동 저장
+ *  - 폴더 정보는 IndexedDB, 백업 상태(마지막 시각 등)는 별도 localStorage 키에 보관
  * ========================================================= */
-// 같은 기기에서 창을 두 개 띄웠을 때 서로 맞춰줌
-window.addEventListener('storage', e => {
-  if (e.key !== KEY) return;
-  state = load();
+const META_KEY = 'ilhyangru-pos-meta';
+const BACKUP_KEEP = 30;                       // 폴더에 남겨둘 백업 파일 수 (하루 1개)
+const BACKUP_RE = /^일향루POS-백업-(\d{4}-\d{2}-\d{2})\.json$/;
+const STORAGE_LIMIT = 5_000_000;              // 브라우저 localStorage 한도(대략, 글자 수)
+const canPickFolder = typeof window.showDirectoryPicker === 'function';
+
+const meta = (() => { try { return JSON.parse(localStorage.getItem(META_KEY)) || {}; } catch { return {}; } })();
+const saveMeta = () => { try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch { /* 무시 */ } };
+
+// 폴더 핸들은 IndexedDB에만 저장할 수 있음
+const idb = (() => {
+  let opening;
+  const open = () => opening ||= new Promise((res, rej) => {
+    const r = indexedDB.open('ilhyangru-pos-handles', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  const run = async (mode, fn) => {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const t = db.transaction('kv', mode);
+      const req = fn(t.objectStore('kv'));
+      t.oncomplete = () => res(req.result);
+      t.onerror = t.onabort = () => rej(t.error);
+    });
+  };
+  return { get: k => run('readonly', s => s.get(k)), set: (k, v) => run('readwrite', s => s.put(v, k)) };
+})();
+
+var backupDir = null;        // 고른 폴더
+var backupState = 'none';    // 'none' 폴더 안 정함 | 'ok' 정상 | 'perm' 허용 필요 | 'error' 저장 실패
+var backupBusy = false, backupTimer = null, backupDirty = false;
+
+async function refreshBackupState() {
+  if (!backupDir) { backupState = 'none'; return; }
+  let p = 'prompt';
+  try { p = (await backupDir.queryPermission?.({ mode: 'readwrite' })) ?? 'granted'; } catch { /* 허용 필요로 처리 */ }
+  backupState = p !== 'granted' ? 'perm' : meta.lastError ? 'error' : 'ok';
+}
+
+function scheduleBackup(delay = 20000) {
+  if (backupState !== 'ok') return;
+  backupDirty = true;
+  clearTimeout(backupTimer);
+  backupTimer = setTimeout(() => runBackup(), delay);
+}
+
+// 폴더에 오늘 날짜 백업 파일 저장 (같은 날은 같은 파일을 덮어씀). 성공하면 true
+async function runBackup() {
+  if (!backupDir || backupState === 'none') return false;
+  if (backupBusy) { backupDirty = true; return false; }
+  backupBusy = true;
+  clearTimeout(backupTimer);
+  try {
+    const name = `일향루POS-백업-${todayKey()}.json`;
+    const data = JSON.stringify(await backupSnapshot());   // 클라우드면 지난 정산까지 모음
+    const fh = await backupDir.getFileHandle(name, { create: true });
+    const w = await fh.createWritable();   // 다 쓴 뒤에 교체되므로, 중간에 끊겨도 기존 파일은 안전
+    await w.write(data);
+    await w.close();
+    Object.assign(meta, { lastBackupAt: Date.now(), lastBackupFile: name, lastError: null });
+    backupState = 'ok';
+    backupDirty = false;
+    saveMeta();
+    pruneBackups();
+    return true;
+  } catch (e) {
+    if (e.name === 'CloudOffline') { backupDirty = true; return false; }   // 인터넷 연결되면 다시 시도
+    meta.lastError = e.name || 'error';
+    backupState = e.name === 'NotAllowedError' || e.name === 'SecurityError' ? 'perm' : 'error';
+    saveMeta();
+    return false;
+  } finally {
+    backupBusy = false;
+    renderNotice();
+    if (view === 'settings') renderSettings();
+  }
+}
+
+// 오래된 백업 파일 정리 (우리 이름 규칙의 파일만, 최근 BACKUP_KEEP개 남김)
+async function pruneBackups() {
+  try {
+    const names = [];
+    for await (const [name, h] of backupDir.entries()) if (h.kind === 'file' && BACKUP_RE.test(name)) names.push(name);
+    names.sort().reverse();
+    for (const n of names.slice(BACKUP_KEEP)) await backupDir.removeEntry(n);
+  } catch { /* 정리 실패는 무시 */ }
+}
+
+// 폴더를 쓰기로 확정 (폴더 선택 직후 / 테스트에서 직접 호출)
+async function useBackupFolder(dir) {
+  backupDir = dir;
+  let remembered = true;
+  try { await idb.set('dir', dir); } catch { remembered = false; }   // 실패해도 이번엔 계속 사용
+  Object.assign(meta, { folderName: dir.name, lastError: null, pickError: null, snoozeUntil: 0, folderRemembered: remembered });
+  saveMeta();
+  backupState = 'ok';
+  return runBackup();
+}
+var pickAborts = 0;
+async function pickBackupFolder() {
+  if (!canPickFolder) return toast('이 브라우저는 폴더 자동 백업을 지원하지 않아요 (크롬을 쓰세요)');
+  try {
+    const dir = await window.showDirectoryPicker({ id: 'ilhyangru-backup', mode: 'readwrite' });
+    const ok = await useBackupFolder(dir);
+    toast(ok ? `'${dir.name}' 폴더에 백업을 저장했어요` : '폴더에 저장하지 못했어요');
+  } catch (e) {
+    console.warn('백업 폴더 선택 실패', e);
+    // 크롬이 아닌 일부 브라우저(앱 내장 브라우저 등)는 폴더를 골라도 '취소'로 처리함 → 두 번 연속이면 안내
+    pickAborts = e.name === 'AbortError' ? pickAborts + 1 : 0;
+    if (e.name !== 'AbortError') meta.pickError = e.name || 'Error';
+    else if (pickAborts >= 2) meta.pickError = 'AbortRepeat';
+    saveMeta();
+  }
+  renderNotice();
+  if (view === 'settings') renderSettings();
+}
+async function allowBackupFolder() {
+  let p = 'denied';
+  try { p = await backupDir.requestPermission({ mode: 'readwrite' }); } catch { /* 거부 */ }
+  if (p === 'granted') { backupState = 'ok'; meta.lastError = null; saveMeta(); await runBackup(); }
+  renderNotice();
+  if (view === 'settings') renderSettings();
+}
+// 폴더가 없거나 안 되는 환경에서의 대체: 파일로 직접 내려받기
+function downloadBackup() {
+  exportBackup();
+  Object.assign(meta, { lastBackupAt: Date.now(), lastBackupFile: `pos-backup-${todayKey()}.json` });
+  saveMeta();
+  renderNotice();
+  if (view === 'settings') renderSettings();
+}
+
+const storageRatio = () => {
+  let n = 0;
+  try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); n += k.length + localStorage.getItem(k).length; } } catch { return 0; }
+  return n / STORAGE_LIMIT;
+};
+const backupAgo = ts => {
+  if (!ts) return null;
+  const d = new Date(ts), t = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return dateKey(ts) === todayKey() ? `오늘 ${t}` : `${d.getMonth() + 1}월 ${d.getDate()}일 ${t}`;
+};
+
+/* ---------- 화면 위쪽 알림 ---------- */
+function computeNotice() {
+  const snoozed = meta.snoozeUntil && Date.now() < meta.snoozeUntil;
+  const days = meta.lastBackupAt ? Math.floor((Date.now() - meta.lastBackupAt) / 86400000) : null;
+  const hasData = state.sales.length > 0 || Object.keys(state.orders).length > 0;
+  const ratio = storageRatio();
+
+  if (backupState === 'error') return { err: true, msg: '⚠ 백업 폴더에 저장하지 못했어요. USB가 빠졌거나 폴더가 없어졌는지 확인해 주세요.',
+    btns: [{ label: '다시 시도', act: 'retry', kind: 'primary' }, { label: '폴더 바꾸기', act: 'pick' }] };
+  if (backupState === 'perm') return { msg: '백업 폴더 사용을 다시 허용해 주세요. (크롬이 가끔 다시 물어봐요)',
+    btns: [{ label: '허용하기', act: 'allow', kind: 'primary' }] };
+  if (ratio >= 0.8) return { err: true, msg: `⚠ 저장 공간이 ${Math.round(ratio * 100)}% 찼어요. 백업을 저장해 둔 뒤, 설정에서 오래된 매출 기록이나 직접 올린 사진을 정리해 주세요.`,
+    btns: [{ label: '설정 열기', act: 'settings' }] };
+  if (backupState === 'none' && meta.pickError) return { err: true, msg: {
+      NotAllowedError: '⚠ 백업 폴더가 설정되지 않았어요. 폴더를 고른 다음 크롬이 한 번 더 묻는 창에서 「파일 수정」(허용)을 눌러 주세요.',
+      SecurityError: '⚠ 크롬이 막아둔 위치라 쓸 수 없어요. C 드라이브 바로 아래 등 다른 곳에 새 폴더를 만들어 골라 주세요.',
+      TypeError: '⚠ 크롬이 막아둔 위치라 쓸 수 없어요. C 드라이브 바로 아래 등 다른 곳에 새 폴더를 만들어 골라 주세요.',
+      AbortRepeat: '⚠ 폴더를 골랐는데도 설정이 안 되면, 지금 창이 크롬이 아니어서예요. 바탕화면 「일향루 POS」(크롬)에서 해 주세요. 지금은 파일로 내려받아 백업할 수 있어요.',
+    }[meta.pickError] || `⚠ 백업 폴더를 설정하지 못했어요 (${meta.pickError}). 다시 시도하거나 다른 폴더를 골라 주세요.`,
+    btns: [{ label: '다시 정하기', act: 'pick', kind: 'primary' }, { label: '파일로 내려받기', act: 'export' }] };
+  if (backupState === 'none' && canPickFolder && !snoozed) return { msg: '자동 백업이 꺼져 있어요. 백업 폴더를 정해 두면 데이터가 날아가도 복구할 수 있어요.',
+    btns: [{ label: '백업 폴더 정하기', act: 'pick', kind: 'primary' }, { label: '나중에', act: 'snooze' }] };
+  if (hasData && !snoozed && (days === null || days >= 3) && (backupState !== 'ok' || days !== null))
+    return { msg: `백업한 지 ${days === null ? '오래' : days + '일'} 됐어요.`,
+      btns: [{ label: '지금 백업', act: backupState === 'ok' ? 'retry' : 'export', kind: 'primary' }, { label: '나중에', act: 'snooze' }] };
+  return null;
+}
+function renderNotice() {
+  const el = $('#notice');
+  const n = computeNotice();
+  if (!n) { el.hidden = true; return; }
+  el.hidden = false;
+  el.className = 'notice' + (n.err ? ' err' : '');
+  el.innerHTML = `<span class="n-msg">${esc(n.msg)}</span>` +
+    n.btns.map(b => `<button class="btn small ${b.kind || ''}" data-notice="${b.act}">${b.label}</button>`).join('');
+}
+$('#notice').addEventListener('click', async e => {
+  const act = e.target.closest('[data-notice]')?.dataset.notice;
+  if (!act) return;
+  if (act === 'pick') await pickBackupFolder();
+  if (act === 'allow') await allowBackupFolder();
+  if (act === 'retry') { const ok = await runBackup(); toast(ok ? '백업을 저장했어요' : '백업에 실패했어요'); }
+  if (act === 'export') downloadBackup();
+  if (act === 'settings') setView('settings');
+  if (act === 'snooze') { meta.snoozeUntil = Date.now() + 86400000; saveMeta(); renderNotice(); }
+});
+
+/* ---------- 설정 화면의 '자동 백업' 카드 ---------- */
+function backupCard() {
+  const st = {
+    none: ['off', canPickFolder ? '꺼져 있음 — 백업 폴더를 정해 주세요' : '이 브라우저는 자동 백업을 지원하지 않아요 (크롬/엣지에서 쓰세요)'],
+    ok: ['on', '켜짐 — 주문·정산이 바뀔 때마다 자동 저장'],
+    perm: ['warn', '허용이 필요해요'],
+    error: ['bad', '저장 실패 — 폴더를 확인해 주세요'],
+  }[backupState];
+  const ratio = storageRatio();
+  return `<section class="set-card">
+    <h3>자동 백업 <small class="bk-state ${st[0]}">${st[1]}</small></h3>
+    <div class="bk-rows">
+      <div><span>백업 폴더</span><b>${meta.folderName && backupDir ? esc(meta.folderName) : '—'}${backupDir && meta.folderRemembered === false ? ' (다음에 다시 골라야 해요)' : ''}</b></div>
+      <div><span>마지막 백업</span><b>${backupAgo(meta.lastBackupAt) || '아직 없음'}</b></div>
+      <div><span>보관</span><b>하루 1개 · 최근 ${BACKUP_KEEP}개</b></div>
+      <div><span>브라우저 데이터 보호</span><b>${meta.persisted ? '켜짐' : '요청함 (크롬이 허락해야 켜져요)'}</b></div>
+      <div><span>저장 공간</span><b>${Math.max(1, Math.round(ratio * 100))}% 사용</b></div>
+    </div>
+    <div class="data-actions">
+      ${canPickFolder ? `<button class="btn ${backupState === 'none' ? 'primary' : 'ghost'}" data-act="pickBackup">${backupDir ? '폴더 바꾸기' : '백업 폴더 정하기'}</button>` : ''}
+      ${backupState === 'perm' ? '<button class="btn primary" data-act="allowBackup">허용하기</button>' : ''}
+      ${backupDir ? '<button class="btn ghost" data-act="backupNow">지금 백업</button>' : ''}
+    </div>
+    <p class="hint">USB 메모리나 구글 드라이브·네이버 MYBOX·드롭박스 같은 동기화 폴더를 고르면 컴퓨터가 고장 나도 복구할 수 있어요. 바탕화면·문서 폴더 자체는 못 고르니 그 안에 새 폴더(예: 일향루백업)를 만들어서 고르세요.
+    복구는 아래 <b>백업 불러오기</b>에서 백업 파일을 고르면 돼요.</p>
+  </section>`;
+}
+
+/* ---------- 마감 ---------- */
+function openClosing() {
+  const today = todayKey();
+  const sales = state.sales.filter(s => dateKey(s.closedAt) === today);
+  const total = sumSales(sales);
+  const open = state.tables.filter(t => state.orders[t.id]);
+  const rank = {};
+  sales.forEach(s => s.items.forEach(i => { rank[i.name] = (rank[i.name] || 0) + i.qty; }));
+  const top = Object.entries(rank).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const d = new Date();
+
+  const m = openModal(`
+    <div class="modal-head"><div><h2>일마감</h2>
+      <div class="sub">${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 (${WD[d.getDay()]})</div></div>
+      <button class="icon-btn" data-act="close" aria-label="닫기">✕</button></div>
+    <div class="close-body">
+      <div class="close-sum">
+        <div><span>오늘 매출</span><b>${won(total)}</b></div>
+        <div><span>정산</span><b>${sales.length}팀</b></div>
+        <div><span>팀당 평균</span><b>${won(sales.length ? Math.round(total / sales.length) : 0)}</b></div>
+      </div>
+      ${open.length ? `<div class="warn-box"><b>⚠ 아직 계산 안 한 테이블이 ${open.length}개 있어요</b>
+        ${open.map(t => `<button class="open-row" data-open="${t.id}"><span>${esc(t.name)}</span><span>${won(sumItems(state.orders[t.id].items))}</span><i>열기 ›</i></button>`).join('')}
+      </div>` : '<div class="ok-box">✓ 모든 테이블이 정산됐어요</div>'}
+      ${top.length ? `<div class="close-top"><span>많이 팔린 메뉴</span> ${top.map(([n, q]) => `${esc(n)} ${q}개`).join(' · ')}</div>` : ''}
+      <div class="close-bk">${backupState === 'ok' ? `백업 폴더: <b>${esc(meta.folderName)}</b> · 마지막 ${backupAgo(meta.lastBackupAt) || '없음'}`
+        : canPickFolder ? '백업 폴더가 아직 없어요. 눌러서 폴더를 정하고 저장해요.' : '백업 파일을 내려받아 저장해요.'}</div>
+    </div>
+    <div class="dlg-actions"><button class="btn pay done-btn" data-act="doClose">마감하고 백업 저장</button></div>`, 'checkout-modal');
+
+  m.el.addEventListener('click', async e => {
+    const open1 = e.target.closest('[data-open]');
+    if (open1) { m.close(); openOrder(open1.dataset.open); return; }
+    const act = e.target.closest('[data-act]')?.dataset.act;
+    if (act === 'close') m.close();
+    if (act === 'doClose') {
+      let ok;
+      if (backupState === 'ok') ok = await runBackup();
+      else if (backupState === 'perm') { await allowBackupFolder(); ok = backupState === 'ok'; }
+      else if (canPickFolder) { await pickBackupFolder(); ok = backupState === 'ok'; }
+      else { downloadBackup(); ok = true; }
+      if (!ok) return toast('백업을 저장하지 못했어요. 폴더를 확인해 주세요');
+      meta.lastCloseDay = today;
+      saveMeta();
+      m.close();
+      toast(`마감 완료 · 오늘 ${won(total)} · 백업 저장됨`);
+    }
+  });
+  m.back.addEventListener('click', e => { if (e.target === m.back) m.close(); });
+}
+$('#closeDayBtn').addEventListener('click', openClosing);
+
+async function initBackup() {
+  try { backupDir = await idb.get('dir') || null; } catch { backupDir = null; }
+  await refreshBackupState();
+  // 크롬이 이 사이트 데이터를 함부로 정리하지 않도록 요청 (크롬이 허락할 때만 켜짐)
+  try { meta.persisted = (await navigator.storage?.persist?.()) === true; saveMeta(); } catch { /* 무시 */ }
+  // 폴더가 정상이고 오늘 아직 백업 전이면 열자마자 한 번 저장
+  if (backupState === 'ok' && (!meta.lastBackupAt || dateKey(meta.lastBackupAt) !== todayKey())) await runBackup();
+  renderNotice();
+  if (view === 'settings') renderSettings();
+}
+// 창을 닫거나 숨길 때 아직 못 한 백업이 있으면 바로 시도
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && backupDirty) runBackup(); });
+
+/* =========================================================
+ *  클라우드 동기화 (Firebase)
+ *  - 가게 계정으로 로그인한 기기만 사용, 모든 기기가 같은 데이터를 실시간 공유
+ *  - 인터넷이 끊겨도 기기 안 저장소(캐시)로 계속 쓰고, 연결되면 자동으로 맞춰짐
+ *  - Firestore: meta/config · menu · tables · fixtures · orders · sales(정산 1건) · days(날짜별 요약)
+ * ========================================================= */
+const FB_VER = '12.19.0';
+const FIREBASE_CONFIG = {
+  apiKey: 'AIzaSyA70-s2wH0iI7ZebgZiAzdOJs1vWHrCK0Y',
+  authDomain: 'ilhyangru-pos.firebaseapp.com',
+  projectId: 'ilhyangru-pos',
+  storageBucket: 'ilhyangru-pos.firebasestorage.app',
+  messagingSenderId: '412650453415',
+  appId: '1:412650453415:web:ed3eff84a9c9e14f9f5e82',
+};
+const STORE_EMAIL = 'vndn629@gmail.com';   // Firestore 보안 규칙에서 허용한 가게 계정
+// 개발용: 주소 끝에 ?emulator=1 을 붙이면 내 컴퓨터의 가짜 Firebase에 연결 (localhost에서만)
+const EMU = ['localhost', '127.0.0.1'].includes(location.hostname) && new URLSearchParams(location.search).has('emulator');
+
+const cloud = {
+  fb: null, user: null, ready: false, unsubs: [], salesUnsub: null, seed: undefined, todayKey: '',
+  remote: { config: '', menu: {}, tables: {}, fixtures: {}, orders: {} },   // 서버에서 마지막으로 받은 문서 (변경분만 보내려고)
+  status: {}, loadedDays: new Set(), starting: false,
+};
+const clean = o => JSON.parse(JSON.stringify(o));
+const stable = v => JSON.stringify(v, (k, x) => x && typeof x === 'object' && !Array.isArray(x)
+  ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => (a < b ? -1 : 1))) : x);
+
+/* ---------- 문서 모양 ---------- */
+const configDoc = st => clean({ storeName: st.storeName, categories: st.categories, menuVer: st.menuVer, layoutVer: st.layoutVer, seed: cloud.seed });
+const menuDoc = (m, i) => clean({ cat: m.cat, name: m.name, price: m.price, img: m.img, order: i });
+const tableDoc = (t, i) => clean({ name: t.name, shape: t.shape || 'rect', x: t.x, y: t.y, w: t.w, h: t.h, order: i });
+const fixtureDoc = (f, i) => clean({ name: f.name, x: f.x, y: f.y, w: f.w, h: f.h, order: i });
+const orderDoc = o => clean({ items: o.items, openedAt: o.openedAt, updatedAt: o.updatedAt ?? o.openedAt });
+const saleDoc = s => clean({ day: dateKey(s.closedAt), tableId: s.tableId, tableName: s.tableName, items: s.items, total: s.total, openedAt: s.openedAt, closedAt: s.closedAt });
+const catFor = (menuArr, i) => (menuArr.find(m => m.id === i.menuId) || menuArr.find(m => m.name === i.name))?.cat || '기타';
+
+// 정산 목록으로 날짜별 요약 만들기 (예전 데이터를 올릴 때 / 요약이 어긋났을 때)
+function buildDaily(sales, menuArr) {
+  const daily = {};
+  sales.forEach(s => {
+    s.items.forEach(i => { i.cat = i.cat || catFor(menuArr, i); });
+    const d = daily[dateKey(s.closedAt)] ||= { total: 0, count: 0, qty: 0, menus: {}, cats: {} };
+    d.total += s.total; d.count++;
+    s.items.forEach(i => {
+      d.qty += i.qty;
+      const m = d.menus[i.name] ||= { q: 0, a: 0 };
+      m.q += i.qty; m.a += i.qty * i.price;
+      d.cats[i.cat] = (d.cats[i.cat] || 0) + i.qty * i.price;
+    });
+  });
+  return daily;
+}
+// 정산 1건이 요약에 더하는(sign=1) / 빼는(sign=-1) 값. 숫자 증가 방식이라 여러 기기가 동시에 정산해도 안 꼬임
+function dayDelta(sale, sign) {
+  const inc = cloud.fb.F.increment;
+  const menus = {}, cats = {};
+  let qty = 0;
+  sale.items.forEach(i => {
+    qty += i.qty * sign;
+    const m = menus[i.name] ||= { q: 0, a: 0 };
+    m.q += i.qty * sign; m.a += i.qty * i.price * sign;
+    const c = catOf(i);
+    cats[c] = (cats[c] || 0) + i.qty * i.price * sign;
+  });
+  const out = { total: inc(sale.total * sign), count: inc(sign), qty: inc(qty), menus: {}, cats: {} };
+  Object.entries(menus).forEach(([n, v]) => { out.menus[n] = { q: inc(v.q), a: inc(v.a) }; });
+  Object.entries(cats).forEach(([c, v]) => { out.cats[c] = inc(v); });
+  return out;
+}
+
+/* ---------- 화면 가리개(로그인/연결 중) ---------- */
+function gate(msg, opt = {}) {
+  const g = $('#gate');
+  g.hidden = false;
+  document.body.classList.add('gated');
+  $('#gateBrand').textContent = state.storeName || '일향루';
+  $('#gateMsg').textContent = msg;
+  $('#gateForm').hidden = !opt.form;
+  $('#gateRetry').hidden = !opt.retry;
+  $('#gateLogout').hidden = !opt.logout;
+  $('#gateSpin').hidden = !!(opt.form || opt.retry || opt.logout);
+  if (opt.form && !$('#gEmail').value) $('#gEmail').value = meta.email || '';
+  if (opt.form) setTimeout(() => ($('#gEmail').value ? $('#gPw') : $('#gEmail')).focus(), 50);
+}
+function ungate() { $('#gate').hidden = true; document.body.classList.remove('gated'); }
+const authMsg = e => ({
+  'auth/invalid-credential': '이메일이나 비밀번호가 맞지 않아요.',
+  'auth/wrong-password': '비밀번호가 맞지 않아요.',
+  'auth/user-not-found': '등록되지 않은 이메일이에요.',
+  'auth/invalid-email': '이메일 모양이 올바르지 않아요.',
+  'auth/too-many-requests': '시도를 너무 많이 했어요. 잠시 뒤에 다시 해 주세요.',
+  'auth/network-request-failed': '인터넷 연결을 확인해 주세요.',
+  'auth/user-disabled': '사용이 중지된 계정이에요.',
+}[e.code] || `로그인하지 못했어요 (${e.code || e.message})`);
+
+/* ---------- Firebase 불러오기 ---------- */
+async function loadFirebase() {
+  const base = `https://www.gstatic.com/firebasejs/${FB_VER}/`;
+  const [appM, A, F] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js')]);
+  const app = appM.initializeApp(EMU ? { apiKey: 'fake-key', projectId: 'demo-ilhyangru', appId: 'demo' } : FIREBASE_CONFIG);
+  const auth = A.getAuth(app);
+  const db = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) });
+  if (EMU) {
+    A.connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+    F.connectFirestoreEmulator(db, '127.0.0.1', 8080);
+  }
+  return { A, F, auth, db };
+}
+async function startCloud() {
+  if (cloud.starting) return;
+  cloud.starting = true;
+  gate('연결하는 중…');
+  try { cloud.fb = cloud.fb || await loadFirebase(); }
+  catch (e) {
+    console.error('Firebase 불러오기 실패', e);
+    cloud.starting = false;
+    return gate('인터넷에 연결해 주세요. 처음 한 번은 인터넷이 필요해요.', { retry: true });
+  }
+  cloud.starting = false;
+  const { A, auth } = cloud.fb;
+  A.onAuthStateChanged(auth, user => {
+    if (user) { if (cloud.user?.uid !== user.uid || !cloud.ready) { cloud.user = user; beginSync(); } }
+    else { teardown(); cloud.user = null; gate('가게 계정으로 로그인해 주세요.', { form: true }); }
+  });
+}
+$('#gateForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = $('#gEmail').value.trim(), pw = $('#gPw').value;
+  if (!email || !pw) return ($('#gateErr').textContent = '이메일과 비밀번호를 입력해 주세요.');
+  $('#gateErr').textContent = '';
+  const btn = $('#gateForm button[type=submit]');
+  btn.disabled = true; btn.textContent = '로그인 중…';
+  try {
+    await cloud.fb.A.signInWithEmailAndPassword(cloud.fb.auth, email, pw);
+    meta.email = email; saveMeta();
+    $('#gPw').value = '';
+  } catch (err) { $('#gateErr').textContent = authMsg(err); }
+  btn.disabled = false; btn.textContent = '로그인';
+});
+$('#gShow').addEventListener('click', () => {
+  const p = $('#gPw'); const show = p.type === 'password';
+  p.type = show ? 'text' : 'password'; $('#gShow').textContent = show ? '숨기기' : '보기';
+});
+$('#gateRetry').addEventListener('click', () => { if (cloud.user) beginSync(); else startCloud(); });
+$('#gateLogout').addEventListener('click', () => signOutCloud());
+window.addEventListener('online', () => { if (!cloud.fb && !cloud.starting) startCloud(); renderCloudChip(); });
+window.addEventListener('offline', renderCloudChip);
+async function signOutCloud() {
+  if (!cloud.ready) { try { await cloud.fb.A.signOut(cloud.fb.auth); } catch { /* 무시 */ } return; }   // 로그인 화면에선 바로
+  if (!await confirmBox('로그아웃', '이 기기에서 로그아웃할까요?\n다시 쓰려면 가게 이메일과 비밀번호가 필요해요.', '로그아웃', 'danger')) return;
+  try { await cloud.fb.A.signOut(cloud.fb.auth); } catch (e) { toast('로그아웃하지 못했어요'); }
+}
+function teardown() {
+  cloud.unsubs.forEach(u => u()); cloud.unsubs = [];
+  cloud.salesUnsub?.(); cloud.salesUnsub = null;
+  cloud.ready = false; cloud.status = {};
+  cloud.remote = { config: '', menu: {}, tables: {}, fixtures: {}, orders: {} };
+  cloud.loadedDays = new Set();
+  renderCloudChip();
+}
+
+/* ---------- 쓰기 ---------- */
+const dref = (name, id) => cloud.fb.F.doc(cloud.fb.db, name, id);
+const colRef = name => cloud.fb.F.collection(cloud.fb.db, name);
+function onWriteError(err) {
+  console.error('클라우드 저장 실패', err);
+  if (err.code === 'permission-denied') toast('⚠ 이 계정은 저장 권한이 없어요. 가게 계정으로 로그인했는지 확인해 주세요.');
+  else if (err.code !== 'unavailable') toast('⚠ 클라우드에 저장하지 못했어요 (' + (err.code || '오류') + ')');
+}
+// ops: ['set', ref, data, options] | ['delete', ref] 를 400개씩 묶어서 보냄. 기다리려면 반환값을 await
+function commitOps(ops) {
+  const { F, db } = cloud.fb, jobs = [];
+  for (let i = 0; i < ops.length; i += 400) {
+    const batch = F.writeBatch(db);
+    ops.slice(i, i + 400).forEach(([type, ref, data, opt]) => (type === 'set' ? batch.set(ref, data, opt) : batch.delete(ref)));
+    jobs.push(batch.commit());
+  }
+  const all = Promise.all(jobs);
+  all.catch(onWriteError);
+  return all;
+}
+function diffKind(kind, arr, docFn, ops) {
+  const remote = cloud.remote[kind], seen = new Set();
+  arr.forEach((o, i) => {
+    seen.add(o.id);
+    const d = docFn(o, i), s = stable(d);
+    if (remote[o.id] !== s) { ops.push(['set', dref(kind, o.id), d]); remote[o.id] = s; }
+  });
+  Object.keys(remote).forEach(id => { if (!seen.has(id)) { ops.push(['delete', dref(kind, id)]); delete remote[id]; } });
+}
+// 화면에서 바뀐 것만 골라서 클라우드로 보냄 (save()가 부를 때마다)
+function pushState() {
+  if (!cloud.ready) return;
+  const ops = [];
+  const cfg = configDoc(state), cs = stable(cfg);
+  if (cs !== cloud.remote.config) { ops.push(['set', dref('meta', 'config'), cfg]); cloud.remote.config = cs; }
+  diffKind('menu', state.menu, menuDoc, ops);
+  diffKind('tables', state.tables, tableDoc, ops);
+  diffKind('fixtures', state.fixtures, fixtureDoc, ops);
+  const remoteO = cloud.remote.orders;
+  Object.entries(state.orders).forEach(([tid, o]) => {
+    const d = orderDoc(o), s = stable(d);
+    if (remoteO[tid] !== s) { ops.push(['set', dref('orders', tid), d]); remoteO[tid] = s; }
+  });
+  Object.keys(remoteO).forEach(tid => { if (!state.orders[tid]) { ops.push(['delete', dref('orders', tid)]); delete remoteO[tid]; } });
+  if (ops.length) commitOps(ops);
+}
+// 정산: 정산 기록 + 날짜별 요약 + 테이블 주문 삭제를 한 번에(전부 되거나 전부 안 됨)
+function cloudCheckout(sale, tableId) {
+  const { F } = cloud.fb;
+  delete cloud.remote.orders[tableId];
+  commitOps([
+    ['set', dref('sales', sale.id), saleDoc(sale)],
+    ['set', dref('days', dateKey(sale.closedAt)), dayDelta(sale, 1), { merge: true }],
+    ['delete', dref('orders', tableId)],
+  ]);
+}
+// 정산 취소: 기록 삭제 + 요약에서 빼기 (+ 원하면 주문을 테이블로 되돌림)
+function cloudUndoSale(sale, restoreOrder) {
+  const ops = [
+    ['delete', dref('sales', sale.id)],
+    ['set', dref('days', dateKey(sale.closedAt)), dayDelta(sale, -1), { merge: true }],
+  ];
+  if (restoreOrder) {
+    const d = orderDoc(restoreOrder.order);
+    cloud.remote.orders[restoreOrder.tableId] = stable(d);
+    ops.push(['set', dref('orders', restoreOrder.tableId), d]);
+  }
+  commitOps(ops);
+}
+
+/* ---------- 처음 연결할 때: 이 기기의 예전 데이터를 올릴지 정함 ---------- */
+const localHasData = st => st.sales.length > 0 || Object.keys(st.orders).length > 0 || st.menu.some(m => m.img);
+async function seedCloud(st, tag) {
+  cloud.seed = tag;
+  const ops = [['set', dref('meta', 'config'), configDoc(st)]];
+  st.menu.forEach((m, i) => ops.push(['set', dref('menu', m.id), menuDoc(m, i)]));
+  st.tables.forEach((t, i) => ops.push(['set', dref('tables', t.id), tableDoc(t, i)]));
+  st.fixtures.forEach((f, i) => ops.push(['set', dref('fixtures', f.id), fixtureDoc(f, i)]));
+  Object.entries(st.orders).forEach(([tid, o]) => ops.push(['set', dref('orders', tid), orderDoc(o)]));
+  const daily = buildDaily(st.sales, st.menu);
+  st.sales.forEach(s => ops.push(['set', dref('sales', s.id), saleDoc(s)]));
+  Object.entries(daily).forEach(([k, d]) => ops.push(['set', dref('days', k), d]));
+  await commitOps(ops);
+}
+async function cloudIsPristine(cfg) {
+  const { F } = cloud.fb;
+  if (cfg?.seed !== 'default') return false;
+  const [d, o, m] = await Promise.all([F.getDocs(F.query(colRef('days'), F.limit(1))), F.getDocs(F.query(colRef('orders'), F.limit(1))), F.getDocs(colRef('menu'))]);
+  return d.empty && o.empty && !m.docs.some(x => x.data().img);
+}
+async function wipeCloud() {
+  const { F } = cloud.fb;
+  for (const name of ['menu', 'tables', 'fixtures', 'orders', 'sales', 'days']) {
+    const snap = await F.getDocs(colRef(name));
+    await commitOps(snap.docs.map(d => ['delete', d.ref]));
+  }
+}
+
+async function beginSync() {
+  const { F } = cloud.fb;
+  teardown();
+  gate('데이터를 불러오는 중…');
+  const local = state;   // 이 기기에 예전부터 있던 데이터 (아직 클라우드 데이터가 덮기 전)
+  let cfg = null, cached = false;
+  try {
+    const snap = navigator.onLine ? await F.getDocFromServer(dref('meta', 'config')) : await F.getDocFromCache(dref('meta', 'config'));
+    cfg = snap.exists() ? snap.data() : null; cached = !navigator.onLine;
+  } catch (e) {
+    if (e.code === 'permission-denied') return gate(cloud.user?.email === STORE_EMAIL
+      ? 'Firebase 보안 규칙이 아직 게시되지 않았어요. Firestore → 규칙에서 가게 계정 규칙을 게시한 뒤 다시 시도해 주세요.'
+      : `이 계정(${cloud.user?.email || ''})은 일향루 데이터를 쓸 권한이 없어요. 가게 계정으로 다시 로그인해 주세요.`, { retry: true, logout: true });
+    try { const snap = await F.getDocFromCache(dref('meta', 'config')); cfg = snap.exists() ? snap.data() : null; cached = true; }
+    catch { return gate('인터넷에 연결해 주세요. 처음 한 번은 인터넷이 필요해요.', { retry: true, logout: true }); }
+  }
+  try {
+    if (!cfg && !cached) {
+      gate('클라우드를 준비하는 중…');
+      await seedCloud(local, localHasData(local) ? 'local' : 'default');
+      meta.cloudLinked = true; saveMeta();
+    } else if (!meta.cloudLinked) {
+      cloud.seed = cfg?.seed;
+      if (localHasData(local)) {
+        if (await cloudIsPristine(cfg)) {
+          gate('이 기기의 데이터를 클라우드로 옮기는 중…');
+          await wipeCloud();
+          await seedCloud(local, 'local');
+        } else {
+          exportBackup();
+          await ask({ title: '이 기기의 예전 데이터', message: '이 기기에 예전 데이터가 있는데, 클라우드에 이미 데이터가 있어서 합치지 않았어요.\n이 기기의 데이터는 백업 파일로 내려받았으니 잘 보관해 주세요.', buttons: [{ label: '확인', value: true, kind: 'primary' }] });
+        }
+      }
+      meta.cloudLinked = true; saveMeta();
+    }
+  } catch (e) {
+    console.error('초기 동기화 실패', e);
+    return gate('클라우드에 연결하지 못했어요. 인터넷을 확인하고 다시 시도해 주세요.', { retry: true, logout: true });
+  }
+  gate('데이터를 불러오는 중…');
+  state.sales = []; state.daily = {}; state.orders = {};   // 이제부터는 클라우드 데이터만 씀 (예전 기기 데이터와 섞이지 않게)
+  await listen();
+  cloud.ready = true;
+  ungate();
   renderAll();
   if (view === 'settings') renderSettings();
-});
+  renderCloudChip();
+  initBackup();
+}
+
+/* ---------- 실시간으로 받기 ---------- */
+let renderTimer;
+function scheduleRender() {
+  cancelAnimationFrame(renderTimer);
+  renderTimer = requestAnimationFrame(() => {
+    if (drag) return setTimeout(scheduleRender, 300);   // 테이블을 끌고 있는 동안은 기다림
+    renderAll();
+    if (view === 'settings' && !document.activeElement?.matches('input, select')) renderSettings();
+    renderNotice();
+  });
+}
+function listenTo(key, ref, fn) {
+  const { F } = cloud.fb;
+  return new Promise(resolve => {
+    let first = true;
+    const un = F.onSnapshot(ref, { includeMetadataChanges: true }, snap => {
+      cloud.status[key] = { cache: snap.metadata.fromCache, pending: snap.metadata.hasPendingWrites };
+      const changed = first || (snap.docChanges ? snap.docChanges().length > 0 : true);
+      if (changed) { fn(snap); scheduleRender(); if (!first && cloud.ready) scheduleBackup(); }
+      renderCloudChip();
+      if (first) { first = false; resolve(); }
+    }, err => {
+      console.error('실시간 받기 실패', key, err);
+      if (err.code === 'permission-denied') gate('이 계정은 데이터를 볼 권한이 없어요. 가게 계정으로 로그인해 주세요.', { logout: true });
+      if (first) { first = false; resolve(); }
+    });
+    cloud.unsubs.push(un);
+  });
+}
+// 메뉴/테이블/구역: 화면에 쓰던 객체는 그대로 두고 값만 갱신 (끌고 있는 중에도 안 끊기게)
+function applyList(kind, snap) {
+  const remote = cloud.remote[kind] = {};
+  const rows = [];
+  snap.forEach(d => { const data = d.data(); remote[d.id] = stable(data); rows.push({ id: d.id, ...data }); });
+  rows.sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || (a.id < b.id ? -1 : 1));
+  const cur = state[kind], byId = Object.fromEntries(cur.map(o => [o.id, o]));
+  state[kind] = rows.map(r => {
+    const { order, ...rest } = r;
+    const o = byId[r.id] || {};
+    Object.keys(o).forEach(k => { if (!(k in rest)) delete o[k]; });
+    return Object.assign(o, rest);
+  });
+}
+function listen() {
+  const { F, db } = cloud.fb;
+  cloud.todayKey = todayKey();
+  const when = fn => snap => { if (drag) return setTimeout(() => when(fn)(snap), 250); fn(snap); };
+  return Promise.all([
+    listenTo('config', dref('meta', 'config'), snap => {
+      const d = snap.data(); if (!d) return;
+      cloud.remote.config = stable(d); cloud.seed = d.seed;
+      Object.assign(state, { storeName: d.storeName, categories: d.categories, menuVer: d.menuVer, layoutVer: d.layoutVer, tableView: meta.tableView || 'floor' });
+    }),
+    listenTo('menu', colRef('menu'), when(snap => applyList('menu', snap))),
+    listenTo('tables', colRef('tables'), when(snap => applyList('tables', snap))),
+    listenTo('fixtures', colRef('fixtures'), when(snap => applyList('fixtures', snap))),
+    listenTo('orders', colRef('orders'), snap => {
+      const next = {}, remote = {};
+      snap.forEach(d => { const x = d.data(); remote[d.id] = stable(x); next[d.id] = { items: x.items, openedAt: x.openedAt, updatedAt: x.updatedAt }; });
+      cloud.remote.orders = remote; state.orders = next;
+    }),
+    listenTo('days', colRef('days'), snap => {
+      const daily = {};
+      snap.forEach(d => { const x = d.data(); daily[d.id] = { total: x.total || 0, count: x.count || 0, qty: x.qty || 0, menus: x.menus || {}, cats: x.cats || {} }; });
+      state.daily = daily;
+    }),
+    watchToday(),
+  ]);
+}
+function watchToday() {
+  const { F } = cloud.fb;
+  cloud.salesUnsub?.();
+  cloud.todayKey = todayKey();
+  return new Promise(resolve => {
+    let first = true;
+    cloud.salesUnsub = F.onSnapshot(F.query(colRef('sales'), F.where('day', '==', cloud.todayKey)), { includeMetadataChanges: true }, snap => {
+      cloud.status.sales = { cache: snap.metadata.fromCache, pending: snap.metadata.hasPendingWrites };
+      const today = []; snap.forEach(d => today.push({ id: d.id, ...d.data() }));
+      state.sales = state.sales.filter(s => dateKey(s.closedAt) !== cloud.todayKey).concat(today);
+      scheduleRender(); renderCloudChip();
+      if (!first && cloud.ready) scheduleBackup();
+      if (first) { first = false; resolve(); }
+    }, err => { console.error('오늘 정산 받기 실패', err); if (first) { first = false; resolve(); } });
+  });
+}
+// 오늘이 아닌 날의 정산 내역은 볼 때만 한 번 가져옴
+async function ensureSalesDay(key) {
+  if (!cloud.ready || key === cloud.todayKey || cloud.loadedDays.has(key)) return;
+  cloud.loadedDays.add(key);
+  try {
+    const { F } = cloud.fb;
+    const snap = await F.getDocs(F.query(colRef('sales'), F.where('day', '==', key)));
+    state.sales = state.sales.filter(s => dateKey(s.closedAt) !== key).concat(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  } catch (e) { cloud.loadedDays.delete(key); console.error('정산 내역 불러오기 실패', e); }
+  if (view === 'sales') renderSales();
+}
+const dayLoaded = key => key === cloud.todayKey || cloud.loadedDays.has(key);
+
+/* ---------- 상단의 연결 상태 표시 ---------- */
+function cloudPhase() {
+  if (!cloud.ready) return 'connecting';
+  if (!navigator.onLine) return 'offline';
+  const st = Object.values(cloud.status);
+  if (st.some(s => s.pending)) return 'saving';
+  if (st.length && st.every(s => s.cache)) return 'connecting';
+  return 'online';
+}
+const PHASE_TXT = { online: '연결됨', saving: '저장 중', offline: '오프라인', connecting: '연결 중' };
+function renderCloudChip() {
+  const el = $('#cloudChip'); if (!el) return;
+  const p = cloudPhase();
+  el.className = 'cloud-chip ' + p;
+  el.innerHTML = `<i></i><span>${PHASE_TXT[p]}</span>`;
+  el.title = p === 'offline' ? '인터넷이 끊겼어요. 계속 쓸 수 있고, 연결되면 자동으로 저장돼요.' : p === 'saving' ? '클라우드에 저장하는 중이에요.' : p === 'connecting' ? '클라우드에 연결하는 중이에요.' : '모든 기기와 같은 데이터를 쓰고 있어요.';
+}
+$('#cloudChip').addEventListener('click', () => toast($('#cloudChip').title));
+
+/* ---------- 설정 화면의 '클라우드' 카드 ---------- */
+function cloudCard() {
+  const p = cloudPhase();
+  return `<section class="set-card">
+    <h3>클라우드 동기화 <small class="bk-state ${p === 'online' ? 'on' : p === 'offline' ? 'bad' : 'warn'}">${PHASE_TXT[p]}</small></h3>
+    <div class="bk-rows">
+      <div><span>로그인 계정</span><b>${esc(cloud.user?.email || '—')}</b></div>
+      <div><span>동기화</span><b>주문·메뉴·배치·매출을 모든 기기와 공유</b></div>
+    </div>
+    <div class="data-actions"><button class="btn ghost" data-act="cloudLogout">이 기기에서 로그아웃</button></div>
+    <p class="hint">같은 가게 계정으로 로그인한 기기(노트북, 아이패드 등)는 몇 초 안에 같은 화면이 돼요. 인터넷이 끊겨도 계속 쓸 수 있고, 연결되면 자동으로 맞춰져요.</p>
+  </section>`;
+}
+
+// 클라우드 전체를 이 데이터로 바꿈 (백업 불러오기 / 전체 초기화)
+async function replaceCloud(st, tag, doneMsg) {
+  gate('모든 기기의 데이터를 바꾸는 중…');
+  try { await wipeCloud(); await seedCloud(st, tag); toast(doneMsg); }
+  catch (e) { onWriteError(e); }
+  histSales = null; cloud.loadedDays = new Set();
+  ungate();
+  renderAll(); if (view === 'settings') renderSettings();
+}
+
+/* =========================================================
+ *  시작
+ * ========================================================= */
 
 // 태블릿 화면이 꺼지지 않게 (지원하는 브라우저에서만)
 let wakeLock = null;
@@ -1715,11 +2608,16 @@ async function keepAwake() {
 document.addEventListener('pointerdown', keepAwake);
 document.addEventListener('visibilitychange', keepAwake);
 
+state.tableView = meta.tableView || state.tableView;
 renderAll();
 tick();
+renderCloudChip();
+startCloud();
 setInterval(() => {
   tick();
+  if (cloud.ready && todayKey() !== cloud.todayKey) watchToday();   // 자정이 지나면 '오늘' 다시 연결
   renderHeader();
+  renderNotice();
   if (view === 'tables' && !editingLayout && !document.querySelector('.backdrop')) renderTables();
 }, 30000);
 </script>
