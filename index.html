@@ -2023,7 +2023,7 @@ function computeNotice() {
     btns: [{ label: '다시 정하기', act: 'pick', kind: 'primary' }, { label: '파일로 내려받기', act: 'export' }] };
   if (backupState === 'none' && canPickFolder && !snoozed) return { msg: '자동 백업이 꺼져 있어요. 백업 폴더를 정해 두면 데이터가 날아가도 복구할 수 있어요.',
     btns: [{ label: '백업 폴더 정하기', act: 'pick', kind: 'primary' }, { label: '나중에', act: 'snooze' }] };
-  if (hasData && !snoozed && (days === null || days >= 3) && (backupState !== 'ok' || days !== null))
+  if (hasData && !snoozed && !(cloud.ready && !canPickFolder) && (days === null || days >= 3) && (backupState !== 'ok' || days !== null))
     return { msg: `백업한 지 ${days === null ? '오래' : days + '일'} 됐어요.`,
       btns: [{ label: '지금 백업', act: backupState === 'ok' ? 'retry' : 'export', kind: 'primary' }, { label: '나중에', act: 'snooze' }] };
   return null;
@@ -2085,6 +2085,7 @@ function openClosing() {
   const rank = {};
   sales.forEach(s => s.items.forEach(i => { rank[i.name] = (rank[i.name] || 0) + i.qty; }));
   const top = Object.entries(rank).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const cloudOnly = !canPickFolder && cloud.ready;   // 아이패드처럼 폴더 백업이 안 되는 기기
   const d = new Date();
 
   const m = openModal(`
@@ -2102,18 +2103,24 @@ function openClosing() {
       </div>` : '<div class="ok-box">✓ 모든 테이블이 정산됐어요</div>'}
       ${top.length ? `<div class="close-top"><span>많이 팔린 메뉴</span> ${top.map(([n, q]) => `${esc(n)} ${q}개`).join(' · ')}</div>` : ''}
       <div class="close-bk">${backupState === 'ok' ? `백업 폴더: <b>${esc(meta.folderName)}</b> · 마지막 ${backupAgo(meta.lastBackupAt) || '없음'}`
+        : cloudOnly ? '데이터는 클라우드에 저장돼 있어요. 백업 파일은 노트북에서 자동으로 만들어져요.'
         : canPickFolder ? '백업 폴더가 아직 없어요. 눌러서 폴더를 정하고 저장해요.' : '백업 파일을 내려받아 저장해요.'}</div>
     </div>
-    <div class="dlg-actions"><button class="btn pay done-btn" data-act="doClose">마감하고 백업 저장</button></div>`, 'checkout-modal');
+    <div class="dlg-actions">
+      ${cloudOnly ? '<button class="btn ghost" data-act="getFile">백업 파일 받기</button>' : ''}
+      <button class="btn pay done-btn" data-act="doClose">${cloudOnly ? '마감하기' : '마감하고 백업 저장'}</button>
+    </div>`, 'checkout-modal');
 
   m.el.addEventListener('click', async e => {
     const open1 = e.target.closest('[data-open]');
     if (open1) { m.close(); openOrder(open1.dataset.open); return; }
     const act = e.target.closest('[data-act]')?.dataset.act;
     if (act === 'close') m.close();
+    if (act === 'getFile') { await exportBackup(); return; }
     if (act === 'doClose') {
       let ok;
-      if (backupState === 'ok') ok = await runBackup();
+      if (cloudOnly) ok = true;   // 아이패드 등: 데이터는 클라우드에 있으니 파일 없이 마감
+      else if (backupState === 'ok') ok = await runBackup();
       else if (backupState === 'perm') { await allowBackupFolder(); ok = backupState === 'ok'; }
       else if (canPickFolder) { await pickBackupFolder(); ok = backupState === 'ok'; }
       else { downloadBackup(); ok = true; }
@@ -2121,7 +2128,7 @@ function openClosing() {
       meta.lastCloseDay = today;
       saveMeta();
       m.close();
-      toast(`마감 완료 · 오늘 ${won(total)} · 백업 저장됨`);
+      toast(`마감 완료 · 오늘 ${won(total)}${cloudOnly ? '' : ' · 백업 저장됨'}`);
     }
   });
   m.back.addEventListener('click', e => { if (e.target === m.back) m.close(); });
