@@ -17,6 +17,7 @@
     --line: #e6e0d7;
     --primary: #b3261e;
     --primary-soft: #fbeae8;
+    --takeout: #1d5fa6;
     --pay: #1f6f43;
     --pay-soft: #e7f3ec;
     --warn: #b86e00;
@@ -138,6 +139,13 @@
   .fbox.round .t-cnt { display: none; }
   .fbox.fixture { display: grid; place-items: center; background: #ebe6de; border-radius: 12px; color: var(--muted); font-weight: 800; }
   .fbox.fixture span { font-size: clamp(12px, 30cqh, 18px); text-align: center; padding: 0 4px; }
+  @container (min-height: 300px) { .fixture span { align-self: start; margin-top: 12px; } }   /* 주방처럼 큰 구역은 이름을 위에 */
+
+  /* 포장 자리: 테이블(빨강)과 구분되는 파란색 */
+  .table-card.takeout.empty { border-color: var(--takeout); background: #f2f6fc; }
+  .table-card.takeout.empty .t-name { color: var(--takeout); }
+  .table-card.takeout.busy { background: var(--takeout); border-color: var(--takeout); }
+  .move-btn.takeout.busy { background: var(--takeout); border-color: var(--takeout); }
   /* 마우스 쓰는 화면에서만: 잘 보이는 큰 커서 + 올리면 살짝 커짐 */
   :root {
     --cur-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 32 32'%3E%3Cpath d='M3 2v24l6.5-6 4.5 10 4.5-2-4.5-9.5H23z' fill='%23111' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto;
@@ -233,6 +241,16 @@
   .menu-btn.has-img .mtxt { padding: 10px 14px 14px; display: flex; flex-direction: column; gap: 4px; }
   .menu-btn .mn { font-weight: 800; font-size: 24px; line-height: 1.25; }
   .menu-btn .mp { color: var(--muted); font-size: 19px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .menu-cell { position: relative; display: flex; }
+  .menu-cell .menu-btn { flex: 1; min-width: 0; }
+  .big-btn {
+    position: absolute; right: 8px; bottom: 8px; z-index: 1; padding: 9px 13px; border-radius: 10px;
+    background: var(--primary); color: #fff; font-weight: 800; font-size: 17px; box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  }
+  .big-btn:active { transform: scale(.94); }
+  .big-btn.pop { animation: pop .22s ease; }
+  .big-toggle { width: 42px; height: 42px; flex-shrink: 0; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); font-weight: 800; color: var(--muted); }
+  .big-toggle.on { background: var(--primary); border-color: var(--primary); color: #fff; }
   .menu-btn .mq {
     position: absolute; top: -8px; right: -8px; min-width: 34px; height: 34px; padding: 0 9px;
     border-radius: 17px; background: var(--primary); color: #fff; font-weight: 800; font-size: 18px;
@@ -461,7 +479,7 @@
     .menu-row {
       display: grid; gap: 6px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--line);
       grid-template-columns: 64px 1.3fr 1fr 42px 42px;
-      grid-template-areas: "t n n n n" "t p c u d";
+      grid-template-areas: "t n n n b" "t p c u d";
     }
     .menu-row .thumb { grid-area: t; width: 64px; height: 100%; }
     .menu-row .name { grid-area: n; }
@@ -469,6 +487,7 @@
     .menu-row .sel { grid-area: c; max-width: none; min-width: 0; }
     .menu-row [data-mup] { grid-area: u; }
     .menu-row [data-mdel] { grid-area: d; }
+    .menu-row [data-mbig] { grid-area: b; }
   }
 </style>
 </head>
@@ -529,6 +548,7 @@
  *  기본 유틸
  * ========================================================= */
 const KEY = 'ilhyangru-pos-v1';
+const APP_VER = '2026-10-03.1';   // 배포할 때마다 바꿈 → 열려 있는 기기들이 알아서 새 버전으로 바뀜
 
 let seq = 0;
 const uid = () => Date.now().toString(36) + (seq++).toString(36) + Math.random().toString(36).slice(2, 6);
@@ -603,7 +623,7 @@ function defaultMenu() {
 }
 function defaultState() {
   const { categories, menu } = defaultMenu();
-  return {
+  const st = {
     storeName: '일향루',
     categories,
     menu,
@@ -616,6 +636,8 @@ function defaultState() {
     sales: [],    // 정산 기록 (클라우드 연결 시엔 오늘 + 열어본 날짜만 들어 있음)
     daily: {},    // 날짜별 매출 요약 { 'YYYY-MM-DD': { total, count, qty, menus, cats } } (클라우드)
   };
+  addTakeouts(st);
+  return st;
 }
 // 예전 기본 메뉴(임시 가격)를 실제 메뉴판으로 한 번 교체. 주문·매출 기록은 그대로, 사진은 같은 이름 메뉴에 유지
 function applyMenuVer(st, ver) {
@@ -664,6 +686,20 @@ const defaultFixtures = () => [
   { id: uid(), name: '입구', x: 53, y: 35, w: 11, h: 1 },
 ];
 const defaultSlot = i => ({ ...STORE_LAYOUT[i] });
+// 주방 칸 안의 포장 자리 4개 (ID를 고정해서 여러 기기가 동시에 추가해도 겹치지 않음)
+const TAKEOUT_SLOTS = [{ x: 1, y: 4, w: 8, h: 7 }, { x: 1, y: 12, w: 8, h: 7 }, { x: 1, y: 20, w: 8, h: 7 }, { x: 1, y: 28, w: 8, h: 7 }];
+function addTakeouts(st) {
+  if (st.takeoutInit) return false;
+  TAKEOUT_SLOTS.forEach((pos, i) => {
+    const id = `takeout-${i + 1}`;
+    if (!st.tables.some(t => t.id === id)) st.tables.push({ id, name: `포장${i + 1}`, kind: 'takeout', shape: 'rect', ...pos });
+  });
+  st.takeoutInit = true;   // 한 번만 (지운 뒤에 다시 생기지 않게)
+  return true;
+}
+// ID로도 알아봄: 업데이트 전 버전이 열린 기기가 저장하면서 kind가 빠져도 포장 자리로 보이게
+const isTakeout = t => t?.kind === 'takeout' || String(t?.id || '').startsWith('takeout-');
+const tLabel = t => isTakeout(t) ? t.name : `${t.name} 테이블`;
 // 다른 것과 1칸 이상 떨어진 빈자리 찾기 (없으면 붙어있는 자리라도)
 function findFree(w, h, items = [...state.tables, ...state.fixtures]) {
   const placed = items.filter(o => typeof o.x === 'number');
@@ -680,6 +716,7 @@ function findFree(w, h, items = [...state.tables, ...state.fixtures]) {
 // 저장된 데이터 읽기: 예전 형식이면 배치를 기본값으로 채워넣음
 function fromSaved(saved) {
   const s = { ...defaultState(), ...saved };
+  s.takeoutInit = saved.takeoutInit === true;
   if (saved.layoutVer !== LAYOUT_VER) {
     s.fixtures = defaultFixtures();
     s.tables.forEach(t => { delete t.x; });
@@ -689,6 +726,7 @@ function fromSaved(saved) {
     t.shape = t.shape || 'rect';
     if (typeof t.x !== 'number') Object.assign(t, i < STORE_LAYOUT.length ? defaultSlot(i) : findFree(8, 8, [...s.tables, ...s.fixtures]));
   });
+  addTakeouts(s);
   return s;
 }
 let state = load();
@@ -807,8 +845,11 @@ $('#fsBtn').addEventListener('click', () => {
 function renderTables() {
   const busy = state.tables.filter(t => state.orders[t.id]);
   const openTotal = busy.reduce((a, t) => a + sumItems(state.orders[t.id].items), 0);
+  const dine = state.tables.filter(t => !isTakeout(t));
+  const busyTakeout = busy.filter(isTakeout).length;
   $('#tableSummary').innerHTML = `
-    <span class="pill">사용중<b>${busy.length} / ${state.tables.length}</b></span>
+    <span class="pill">사용중<b>${dine.filter(t => state.orders[t.id]).length} / ${dine.length}</b></span>
+    ${busyTakeout ? `<span class="pill">포장<b>${busyTakeout}건</b></span>` : ''}
     <span class="pill">미정산 합계<b>${won(openTotal)}</b></span>`;
 
   const floorMode = state.tableView !== 'grid';
@@ -830,7 +871,7 @@ function renderTables() {
     area.innerHTML = state.tables.length
       ? `<div class="table-grid">${state.tables.map(t => {
           const o = state.orders[t.id];
-          return `<button class="table-card ${o ? 'busy' : 'empty'}" data-table="${t.id}">${tableBody(t, o)}</button>`;
+          return `<button class="table-card ${o ? 'busy' : 'empty'} ${isTakeout(t) ? 'takeout' : ''}" data-table="${t.id}">${tableBody(t, o)}</button>`;
         }).join('')}</div>`
       : `<div class="empty-note">테이블이 없어요. 설정 탭에서 추가하세요.</div>`;
     return;
@@ -842,7 +883,7 @@ function renderTables() {
     ${state.tables.map(t => {
       const o = state.orders[t.id];
       return `<div class="fitem" data-ft="${t.id}" ${editingLayout ? '' : `data-table="${t.id}"`} style="${posStyle(t)}">
-        <div class="fbox table-card ${o ? 'busy' : 'empty'} ${t.shape === 'round' ? 'round' : ''}">${tableBody(t, o)}</div>${rz}</div>`;
+        <div class="fbox table-card ${o ? 'busy' : 'empty'} ${t.shape === 'round' ? 'round' : ''} ${isTakeout(t) ? 'takeout' : ''}">${tableBody(t, o)}</div>${rz}</div>`;
     }).join('')}
   </div>`;
   requestAnimationFrame(fitTableLines);
@@ -868,13 +909,13 @@ window.addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = set
 let editingLayout = false;
 const posStyle = o => `left:${o.x / FW * 100}%;top:${o.y / FH * 100}%;width:${o.w / FW * 100}%;height:${o.h / FH * 100}%`;
 const nextTableName = () => {
-  let n = state.tables.length + 1;
+  let n = state.tables.filter(t => !isTakeout(t)).length + 1;
   while (state.tables.some(t => t.name === `${n}번`)) n++;
   return `${n}번`;
 };
 
 function tableBody(t, o) {
-  if (!o) return `<span class="t-name">${esc(t.name)}</span><span class="t-empty">빈 테이블</span>`;
+  if (!o) return `<span class="t-name">${esc(t.name)}</span><span class="t-empty">${isTakeout(t) ? '비어 있음' : '빈 테이블'}</span>`;
   const lines = o.items.map(i => `<li><span>${esc(i.name)}</span><span>${i.qty}</span></li>`).join('');
   const count = o.items.reduce((a, i) => a + i.qty, 0);
   return `<div class="t-head"><span class="t-name">${esc(t.name)}</span><span class="t-time">${elapsed(o.openedAt)}</span></div>
@@ -1016,6 +1057,11 @@ const DEFAULT_IMGS = {
 // x.img: 직접 올린 사진(dataURL) / '' = 사진 지움 / 없음 = 기본 사진
 const imgOf = x => x.img === '' ? null : (x.img || (DEFAULT_IMGS[x.name] ? `img/${DEFAULT_IMGS[x.name]}.jpg` : null));
 
+// 곱빼기: +1,000원. 기본은 면·밥 종류(식사·밥류·여름별미, 만두 제외). 설정에서 메뉴마다 켜고 끌 수 있음
+const BIG_PRICE = 1000;
+const BIG_CATS = ['식사', '밥류', '여름별미'];
+const allowBig = x => x.big ?? (BIG_CATS.includes(x.cat) && !/만두/.test(x.name));
+
 // 사진 없는 메뉴에 들어가는 빈 그림 칸
 const NO_IMG = `<span class="mimg noimg">
   <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -1032,7 +1078,7 @@ function openOrder(tableId) {
 
   const m = openModal(`
     <div class="modal-head">
-      <div><h2>${esc(table.name)} 테이블</h2><div class="sub" data-ref="sub"></div></div>
+      <div><h2>${esc(tLabel(table))}</h2><div class="sub" data-ref="sub"></div></div>
       <button class="icon-btn" data-act="close" aria-label="닫기">✕</button>
     </div>
     <div class="order-body">
@@ -1066,11 +1112,14 @@ function openOrder(tableId) {
     draft.forEach(i => { q[i.menuId] = (q[i.menuId] || 0) + i.qty; });
     const items = state.menu.filter(x => x.cat === cat);
     ref('menu').innerHTML = items.length
-      ? items.map(x => `<button class="menu-btn has-img" data-menu="${x.id}">
-          ${imgOf(x) ? `<img class="mimg" src="${imgOf(x)}" alt="">` : NO_IMG}
-          <span class="mtxt"><span class="mn">${esc(x.name)}</span><span class="mp">${won(x.price)}</span></span>
-          ${q[x.id] ? `<span class="mq">${q[x.id]}</span>` : ''}
-        </button>`).join('')
+      ? items.map(x => `<div class="menu-cell">
+          <button class="menu-btn has-img" data-menu="${x.id}">
+            ${imgOf(x) ? `<img class="mimg" src="${imgOf(x)}" alt="">` : NO_IMG}
+            <span class="mtxt"><span class="mn">${esc(x.name)}</span><span class="mp">${won(x.price)}</span></span>
+            ${q[x.id] ? `<span class="mq">${q[x.id]}</span>` : ''}
+          </button>
+          ${allowBig(x) ? `<button class="big-btn" data-big="${x.id}" title="곱빼기 (+${won(BIG_PRICE)})">곱빼기</button>` : ''}
+        </div>`).join('')
       : `<div class="cart-empty">이 분류에 메뉴가 없어요.<br>설정 탭에서 추가하세요.</div>`;
   }
   function renderCart() {
@@ -1095,21 +1144,22 @@ function openOrder(tableId) {
   function renderStatus() {
     const o = committed();
     const d = dirty();
-    ref('sub').innerHTML = (o ? `사용중 · ${fmtTime(o.openedAt)} 입장 (${elapsed(o.openedAt)})` : '빈 테이블')
+    ref('sub').innerHTML = (o ? `사용중 · ${fmtTime(o.openedAt)} ${isTakeout(table) ? '주문' : '입장'} (${elapsed(o.openedAt)})` : isTakeout(table) ? '비어 있음' : '빈 테이블')
       + (d ? ' · <em>● 주문 확인 전</em>' : '');
     ref('total').textContent = won(sumItems(draft));
     $('[data-act="confirm"]', m.el).classList.toggle('attn', d);
   }
   function refresh() { renderMenu(); renderCart(); renderStatus(); }
 
-  function add(menuId) {
+  function add(menuId, big = false) {
     const mi = menuById(menuId);
     if (!mi) return;
-    let line = draft.find(i => i.menuId === mi.id && i.price === mi.price);
+    const price = mi.price + (big ? BIG_PRICE : 0);
+    let line = draft.find(i => i.menuId === mi.id && i.price === price && !!i.big === big);
     if (line) line.qty++;
-    else draft.push(line = { menuId: mi.id, name: mi.name, price: mi.price, qty: 1 });
+    else draft.push(line = { menuId: mi.id, name: big ? `${mi.name}(곱빼기)` : mi.name, price, qty: 1, ...(big ? { big: true } : {}) });
     refresh();
-    $(`[data-menu="${menuId}"]`, m.el)?.classList.add('pop');
+    $(big ? `[data-big="${menuId}"]` : `[data-menu="${menuId}"]`, m.el)?.classList.add('pop');
     const row = $(`[data-k="${CSS.escape(lineKey(line))}"]`, m.el);
     if (row) { row.classList.add('flash'); row.scrollIntoView({ block: 'nearest' }); }
   }
@@ -1146,6 +1196,8 @@ function openOrder(tableId) {
     const t = e.target;
     const catBtn = t.closest('[data-cat]');
     if (catBtn) { cat = catBtn.dataset.cat; renderCats(); renderMenu(); return; }
+    const bigBtn = t.closest('[data-big]');
+    if (bigBtn) { add(bigBtn.dataset.big, true); return; }
     const menuBtn = t.closest('[data-menu]');
     if (menuBtn) { add(menuBtn.dataset.menu); return; }
     const inc = t.closest('[data-inc]');
@@ -1211,7 +1263,7 @@ function openCheckout(tableId) {
 
   const m = openModal(`
     <div class="modal-head">
-      <div><h2>${esc(table.name)} 테이블 정산</h2>
+      <div><h2>${esc(tLabel(table))} 정산</h2>
         <div class="sub">${fmtTime(o.openedAt)} 입장 · ${elapsed(o.openedAt)} 이용</div></div>
       <button class="icon-btn" data-act="close" aria-label="닫기">✕</button>
     </div>
@@ -1263,7 +1315,7 @@ function openMove(fromId) {
     </div>
     <div class="move-grid">${others.map(t => {
       const ot = state.orders[t.id];
-      return `<button class="move-btn ${ot ? 'busy' : ''}" data-to="${t.id}">
+      return `<button class="move-btn ${ot ? 'busy' : ''} ${isTakeout(t) ? 'takeout' : ''}" data-to="${t.id}">
         ${esc(t.name)}<small>${ot ? '합석 · ' + won(sumItems(ot.items)) : '빈 테이블'}</small></button>`;
     }).join('')}</div>`, 'dialog wide');
 
@@ -1587,7 +1639,7 @@ async function undoSale(id) {
 function renderSettings() {
   $('#view-settings').innerHTML = `<div class="set-wrap">
     <section class="set-card">
-      <h3>메뉴 <small>📷을 눌러 사진 등록 · 가격을 바꿔도 이미 받은 주문 금액은 그대로예요</small></h3>
+      <h3>메뉴 <small>📷 사진 등록 · <b style="color:var(--primary)">곱</b> 곱빼기 버튼 켜기/끄기 · 가격을 바꿔도 이미 받은 주문 금액은 그대로예요</small></h3>
       <input type="file" id="menuImgFile" accept="image/*" hidden>
       ${state.categories.map((c, ci) => {
         const items = state.menu.filter(x => x.cat === c);
@@ -1601,6 +1653,7 @@ function renderSettings() {
             <button class="thumb ${imgOf(x) ? 'on' : ''}" data-mimg="${x.id}" title="사진">
               ${imgOf(x) ? `<img src="${imgOf(x)}" alt="">` : '📷<br>사진'}</button>
             <input class="inp name" data-mname="${x.id}" value="${esc(x.name)}" maxlength="20">
+            <button class="big-toggle ${allowBig(x) ? 'on' : ''}" data-mbig="${x.id}" title="곱빼기 버튼 ${allowBig(x) ? '켜짐' : '꺼짐'}">곱</button>
             <input class="inp price" data-mprice="${x.id}" type="number" inputmode="numeric" min="0" step="500" value="${x.price}">
             <select class="inp sel" data-mcat="${x.id}">${state.categories.map(k =>
               `<option ${k === x.cat ? 'selected' : ''}>${esc(k)}</option>`).join('')}</select>
@@ -1738,6 +1791,11 @@ $('#view-settings').addEventListener('click', async e => {
     });
     if (r === 'change') $('#menuImgFile').click();
     if (r === 'del') { x.img = ''; save(); renderSettings(); }
+  } else if (d.mbig) {
+    const x = menuById(d.mbig);
+    x.big = !allowBig(x);
+    save(); renderSettings();
+    toast(`${x.name} 곱빼기 버튼 ${x.big ? '켬' : '끔'}`);
   } else if (d.mup) {
     const i = state.menu.findIndex(x => x.id === d.mup);
     const cat = state.menu[i].cat;
@@ -2177,9 +2235,9 @@ const stable = v => JSON.stringify(v, (k, x) => x && typeof x === 'object' && !A
   ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => (a < b ? -1 : 1))) : x);
 
 /* ---------- 문서 모양 ---------- */
-const configDoc = st => clean({ storeName: st.storeName, categories: st.categories, menuVer: st.menuVer, layoutVer: st.layoutVer, seed: cloud.seed });
-const menuDoc = (m, i) => clean({ cat: m.cat, name: m.name, price: m.price, img: m.img, order: i });
-const tableDoc = (t, i) => clean({ name: t.name, shape: t.shape || 'rect', x: t.x, y: t.y, w: t.w, h: t.h, order: i });
+const configDoc = st => clean({ storeName: st.storeName, categories: st.categories, menuVer: st.menuVer, layoutVer: st.layoutVer, takeoutInit: st.takeoutInit, seed: cloud.seed });
+const menuDoc = (m, i) => clean({ cat: m.cat, name: m.name, price: m.price, img: m.img, big: m.big, order: i });
+const tableDoc = (t, i) => clean({ name: t.name, kind: isTakeout(t) ? 'takeout' : undefined, shape: t.shape || 'rect', x: t.x, y: t.y, w: t.w, h: t.h, order: i });
 const fixtureDoc = (f, i) => clean({ name: f.name, x: f.x, y: f.y, w: f.w, h: f.h, order: i });
 const orderDoc = o => clean({ items: o.items, openedAt: o.openedAt, updatedAt: o.updatedAt ?? o.openedAt });
 const saleDoc = s => clean({ day: dateKey(s.closedAt), tableId: s.tableId, tableName: s.tableName, items: s.items, total: s.total, openedAt: s.openedAt, closedAt: s.closedAt });
@@ -2451,7 +2509,9 @@ async function beginSync() {
   state.sales = []; state.daily = {}; state.orders = {};   // 이제부터는 클라우드 데이터만 씀 (예전 기기 데이터와 섞이지 않게)
   await listen();
   cloud.ready = true;
+  if (addTakeouts(state)) save();   // 주방 칸에 포장 자리 4개 (처음 한 번)
   ungate();
+  restoreAfterUpdate();
   renderAll();
   if (view === 'settings') renderSettings();
   renderCloudChip();
@@ -2509,7 +2569,8 @@ function listen() {
     listenTo('config', dref('meta', 'config'), snap => {
       const d = snap.data(); if (!d) return;
       cloud.remote.config = stable(d); cloud.seed = d.seed;
-      Object.assign(state, { storeName: d.storeName, categories: d.categories, menuVer: d.menuVer, layoutVer: d.layoutVer, tableView: meta.tableView || 'floor' });
+      Object.assign(state, { storeName: d.storeName, categories: d.categories, menuVer: d.menuVer, layoutVer: d.layoutVer, takeoutInit: !!d.takeoutInit, tableView: meta.tableView || 'floor' });
+      if (cloud.ready && !state.takeoutInit) setTimeout(() => { if (addTakeouts(state)) save(); }, 800);   // 백업을 불러온 뒤 등
     }),
     listenTo('menu', colRef('menu'), when(snap => applyList('menu', snap))),
     listenTo('tables', colRef('tables'), when(snap => applyList('tables', snap))),
@@ -2600,6 +2661,37 @@ async function replaceCloud(st, tag, doneMsg) {
 }
 
 /* =========================================================
+ *  자동 업데이트: 새 버전이 배포되면, 하던 일이 없을 때 조용히 새로고침
+ *  (주문 창·정산 창을 열어 둔 동안, 배치 편집 중, 입력 중, 저장 중에는 기다림)
+ * ========================================================= */
+let updateReady = false;
+async function checkUpdate() {
+  if (location.protocol !== 'https:' || updateReady) return;
+  try {
+    const r = await fetch(`${location.pathname}?v=${Date.now()}`, { cache: 'no-store' });
+    const ver = (await r.text()).match(/const APP_VER = '([^']+)'/)?.[1];
+    if (ver && ver !== APP_VER) { updateReady = true; tryUpdate(); }
+  } catch { /* 인터넷이 없으면 다음에 */ }
+}
+function tryUpdate() {
+  if (!updateReady) return;
+  if (document.querySelector('.backdrop') || editingLayout || drag) return;
+  if (document.activeElement?.matches('input, select, textarea')) return;
+  if (cloud.ready && cloudPhase() === 'saving') return;
+  try { sessionStorage.setItem('pos-after-update', JSON.stringify({ view })); } catch { /* 무시 */ }
+  location.reload();
+}
+function restoreAfterUpdate() {
+  let saved = null;
+  try { saved = JSON.parse(sessionStorage.getItem('pos-after-update')); sessionStorage.removeItem('pos-after-update'); } catch { /* 무시 */ }
+  if (!saved) return;
+  if (saved.view && saved.view !== view) setView(saved.view);
+  toast('새 버전으로 업데이트했어요');
+}
+setInterval(checkUpdate, 5 * 60 * 1000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
+
+/* =========================================================
  *  시작
  * ========================================================= */
 
@@ -2620,8 +2712,10 @@ renderAll();
 tick();
 renderCloudChip();
 startCloud();
+setTimeout(checkUpdate, 20000);
 setInterval(() => {
   tick();
+  tryUpdate();
   if (cloud.ready && todayKey() !== cloud.todayKey) watchToday();   // 자정이 지나면 '오늘' 다시 연결
   renderHeader();
   renderNotice();
